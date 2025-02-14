@@ -48,7 +48,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "Logging into ECR..."
-            # aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
             
             echo "Stopping old container..."
             docker stop mi-backend || true
