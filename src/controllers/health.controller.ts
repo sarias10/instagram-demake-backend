@@ -7,6 +7,7 @@ export const healthCheck = async (_req: Request, res: Response) => {
     await sequelize.authenticate();
     res.json({ message: "✅ Database is connected" });
   } catch (error) {
-    res.status(500).json({ message: "❌ Database is NOT connected", error });
+    console.log(error);
+    res.status(500).json({ message: "❌ Database is NOT connected" });
   }
 };

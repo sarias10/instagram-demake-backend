@@ -3,12 +3,18 @@
   "compilerOptions": {
     "target": "ES6",
     "outDir": "./build/",
+    "rootDir": "./src",
     "module": "commonjs",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true                                 /* Skip type checking all .d.ts files. */
-  }
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": "./src"                              /* Skip type checking all .d.ts files. */
+  },
+  "include": ["src"],                  
+  "exclude": ["node_modules", "build"]
 }
