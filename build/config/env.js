@@ -36,8 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = void 0;
 const dotenv = __importStar(require("dotenv"));
 const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development";
-// Asignar el resultado de dotenv.config() a una variable
-// Cargar variables de entorno con un tipado correcto
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 dotenv.config({ path: envFile });
 exports.config = {
     port: process.env.PORT || 3000,
@@ -50,3 +49,4 @@ exports.config = {
     },
 };
 console.log(`🛠️ Loaded environment variables from ${envFile}`);
+console.log(exports.config);
