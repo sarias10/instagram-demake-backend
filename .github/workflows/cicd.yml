@@ -55,7 +55,7 @@ jobs:
             docker rm mi-backend || true
             
             echo "Pulling new image..."
-            docker pull 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+            docker pull 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
 
             echo "Running new container..."
             docker run -d -p 3001:3001 --name mi-backend 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
