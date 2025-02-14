@@ -58,4 +58,4 @@ jobs:
             docker pull 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
 
             echo "Running new container..."
-            docker run -d -p 3001:3001 --name mi-backend --env-file .env 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
+            docker run -d -p 3001:3001 --name mi-backend --env-file .env.production 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
