@@ -1,8 +1,14 @@
 import * as dotenv from "dotenv";
 
 const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development";
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
 dotenv.config({ path: envFile });
+
+// Cargar el archivo .env solo en desarrollo
+// const envFile = ".env.development";
+// if (process.env.NODE_ENV === "development") {
+//   dotenv.config({ path: envFile });
+// }
 
 export const config = {
   port: process.env.PORT || 3000,
