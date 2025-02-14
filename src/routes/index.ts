@@ -6,7 +6,7 @@ const router = Router();
 
 router.get("/health", healthCheck);
 router.get("/", (_req, res) => {
-    res.send("Hello, World! 🌎");
+    res.send("Sergio les dice: HOLA MUNDO! 🌎 😂");
 });
 
 export default router;
