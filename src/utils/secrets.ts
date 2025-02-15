@@ -16,7 +16,7 @@ import {
     try {
       // Retrieve the secret from Secrets Manager
       const response = await client.send(
-        
+
         new GetSecretValueCommand({
           SecretId: secretName,
           VersionStage: "AWSCURRENT", // Default version stage
@@ -28,7 +28,7 @@ import {
       }
   
       // Parse the secret string into an object (if JSON)
-      return JSON.parse(response.SecretString);
+      return JSON.parse(response.SecretString) as SecretType;
     } catch (error) {
       console.error(`Error fetching secret "${secretName}":`, error);
       throw new Error("Failed to retrieve secret from AWS Secrets Manager");
