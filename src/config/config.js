@@ -1,17 +1,13 @@
-const dotenv = require('dotenv');
-const path = require('path');
+require('ts-node/register');
 
-// Determinar el archivo de entorno a cargar
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-dotenv.config({ path: envFile });
+const { config } = require('./env.ts')
 
 module.exports = {
-  development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    username: config.db.user,
+    password: config.db.password,
+    database: config.db.name,
+    host: config.db.host,
+    port: config.db.port,
     dialect: 'postgres',
     dialectOptions: {
       ssl: {
@@ -19,33 +15,4 @@ module.exports = {
         rejectUnauthorized: false
       }
     }
-  },
-  test: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: `${process.env.DB_NAME}_test`,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    }
-  },
-  production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    }
-  }
 };

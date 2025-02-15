@@ -22,4 +22,3 @@ export const config = {
 };
 
 console.log(`🛠️ Loaded environment variables from ${envFile}`);
-console.log(config);

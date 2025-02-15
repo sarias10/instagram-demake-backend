@@ -16,6 +16,7 @@ import {
     try {
       // Retrieve the secret from Secrets Manager
       const response = await client.send(
+        
         new GetSecretValueCommand({
           SecretId: secretName,
           VersionStage: "AWSCURRENT", // Default version stage
