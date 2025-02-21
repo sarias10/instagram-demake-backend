@@ -1,7 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/database';
 import { NoteAttributes, NoteCreationAttributes } from '../types/types';
-import User from './user';
+import { User } from './user';
 
 class Note extends Model<NoteAttributes, NoteCreationAttributes> implements NoteAttributes {
   public id!: number;
@@ -52,4 +52,4 @@ Note.init(
   }
 );
 
-export default Note;
+export { Note };

@@ -1,7 +1,7 @@
 import { Response } from 'express';
 
 import { CustomRequest, NoteCreationAttributes } from '../types/types';
-import Note from '../models/note';
+import { Note } from '../models/index';
 
 export const createNote = async (req: CustomRequest<NoteCreationAttributes>, res: Response) => {
     try {

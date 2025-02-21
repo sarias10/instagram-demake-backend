@@ -1,18 +1,18 @@
 // Archivo principal de rutas
-import { Router } from "express";
-import { healthCheck } from "../controllers/health.controller";
-import { createNote, getAllNotes } from "../controllers/note.controller";
+import { Router } from 'express';
+import userRouter from './user.controller';
+import noteRouter from './note.controller';
 
 const router = Router();
 
-router.get("/health", healthCheck);
-router.get("/", (_req, res) => {
-    res.send("Sergio 2000 les dice: HOLA MUNDO! 🌎 😂");
+// Ruta de ejemplo
+router.get('/', (_req, res) => {
+    res.send('Sergio les dice: HOLA MUNDO! 🌎 😂');
 });
 
-// Notes routes
-router.post("/notes", createNote);
-router.get("/notes", getAllNotes);
-
+// Importar rutas
+// router.use(healthRoutes);
+router.use(userRouter);
+router.use(noteRouter);
 
 export default router;

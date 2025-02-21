@@ -1,8 +1,8 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from 'config/database';
-import { CommentAttributes, CommentCreationAttributes } from 'types/types';
-import User from './user';
-import Note from './note';
+import { sequelize } from '../config/database';
+import { CommentAttributes, CommentCreationAttributes } from '../types/types';
+import { User } from './user';
+import { Note } from './note';
 
 class Comment extends Model<CommentAttributes, CommentCreationAttributes> implements CommentAttributes {
     public id!: number;
@@ -78,4 +78,4 @@ Comment.init(
     }
 );
 
-export default Comment;
+export { Comment };

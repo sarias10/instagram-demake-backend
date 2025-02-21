@@ -1,9 +1,9 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from 'config/database';
-import { LikeAttributes, LikeCreationAttributes } from 'types/types';
-import User from './user';
-import Note from './note';
-import Comment from './comments';
+import { sequelize } from '../config/database';
+import { LikeAttributes, LikeCreationAttributes } from '../types/types';
+import { User } from './user';
+import { Note } from './note';
+import { Comment } from './comments';
 
 // La clase 'Like' extiende 'Model' de Sequelize para representar la tabla 'Likes' en la base de datos.
 // 'Model<LikeAttributes, LikeCreationAttributes>' especifica los tipos para los atributos del modelo
@@ -106,4 +106,4 @@ Like.init(
     }
 );
 
-export default Like;
+export { Like };

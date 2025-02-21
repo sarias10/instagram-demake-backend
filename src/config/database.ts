@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import { config } from "./env";
+import { Sequelize } from 'sequelize';
+import { config } from './env';
 
 export const sequelize = new Sequelize(
   config.db.name,
@@ -8,7 +8,7 @@ export const sequelize = new Sequelize(
   {
   host: config.db.host,
   port: config.db.port,
-  dialect: "postgres",
+  dialect: 'postgres',
   dialectOptions: {
     ssl: {
       require: true,
@@ -21,9 +21,9 @@ export const sequelize = new Sequelize(
 export const checkDatabaseConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log("✅ Database connected successfully!");
+    console.log('✅ Database connected successfully!');
   } catch (error) {
-    console.error("❌ Unable to connect to the database:", error);
+    console.error('❌ Unable to connect to the database:', error);
     process.exit(1);
   }
 };

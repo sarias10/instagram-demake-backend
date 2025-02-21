@@ -1,6 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/database';
-import { UserAttributes, UserCreationAttributes } from 'types/types';
+import { UserAttributes, UserCreationAttributes } from '../types/types';
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
     public id!: number;
@@ -40,4 +40,4 @@ User.init(
     }
 );
 
-export default User;
+export { User };
