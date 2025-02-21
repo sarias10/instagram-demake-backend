@@ -1,7 +1,6 @@
 require('ts-node/register');
 
-const { config } = require('./env.ts')
-
+const { config } = require('./env.ts');
 
 module.exports = {
     username: config.db.user,

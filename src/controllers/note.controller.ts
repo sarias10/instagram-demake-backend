@@ -1,7 +1,7 @@
-import { Response } from "express";
+import { Response } from 'express';
 
-import { CustomRequest, NoteCreationAttributes } from "../types/types";
-import Note from "../models/note";
+import { CustomRequest, NoteCreationAttributes } from '../types/types';
+import Note from '../models/note';
 
 export const createNote = async (req: CustomRequest<NoteCreationAttributes>, res: Response) => {
     try {
@@ -11,9 +11,9 @@ export const createNote = async (req: CustomRequest<NoteCreationAttributes>, res
         if (error instanceof Error) {
             console.log(error.message);
         } else {
-            console.log("Unknown error occurred");
+            console.log('Unknown error occurred');
         }
-        res.status(500).json({ error: "Failed to create note" });
+        res.status(500).json({ error: 'Failed to create note' });
     }
 };
 
@@ -25,8 +25,8 @@ export const getAllNotes = async (_req: CustomRequest<NoteCreationAttributes>, r
         if (error instanceof Error) {
             console.log(error.message);
         } else {
-            console.log("Unknown error occurred");
+            console.log('Unknown error occurred');
         }
-        res.status(500).json({ error: "Failed to retrieve notes" });
+        res.status(500).json({ error: 'Failed to retrieve notes' });
     }
 };
