@@ -33,15 +33,6 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
-      parentId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Comments',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

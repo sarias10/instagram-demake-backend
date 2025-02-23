@@ -3,7 +3,7 @@
 import { User } from './user';
 import { Note } from './note';
 import { Like } from './like';
-import { Comment } from './comments';
+import { Comment } from './comment';
 
 // Users y Notes
 User.hasMany(Note, { sourceKey: 'id', foreignKey: 'userId', as: 'notes' }); // sourceKey: 'id' -> la clave primaria
@@ -16,10 +16,6 @@ Comment.belongsTo(User, { foreignKey: 'userId', targetKey: 'id', as: 'author' })
 // Notes y Comments
 Note.hasMany(Comment, { sourceKey: 'id', foreignKey: 'noteId', as: 'comments' });
 Comment.belongsTo(Note, { foreignKey: 'noteId', targetKey: 'id', as: 'note' });
-
-// Comments (Auto-relación)
-Comment.hasMany(Comment, { sourceKey: 'id', foreignKey: 'parentId', as: 'replies' });
-Comment.belongsTo(Comment, { foreignKey: 'parentId', targetKey: 'id', as: 'parent' });
 
 // Likes y Notes
 Note.hasMany(Like, { sourceKey: 'id', foreignKey: 'noteId', as: 'likes' });

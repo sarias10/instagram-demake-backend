@@ -3,7 +3,7 @@ import { sequelize } from '../config/database';
 import { LikeAttributes, LikeCreationAttributes } from '../types/types';
 import { User } from './user';
 import { Note } from './note';
-import { Comment } from './comments';
+import { Comment } from './comment';
 
 // La clase 'Like' extiende 'Model' de Sequelize para representar la tabla 'Likes' en la base de datos.
 // 'Model<LikeAttributes, LikeCreationAttributes>' especifica los tipos para los atributos del modelo
@@ -23,8 +23,8 @@ class Like extends Model<LikeAttributes, LikeCreationAttributes> implements Like
     public id!: number; // Utiliza '!' para indicar a TypeScript que esta propiedad siempre tendrá un valor (nunca será undefined o null),
                         // aunque no se inicialice en el constructor. Se usa en clases que extienden de Model, ya que Sequelize asigna el valor después.
     public userId!: number;
-    public noteId: number | null = null; // Inicializa noteId como null para evitar que sea undefined y cumplir con la interfaz LikeAttributes, que espera number o null.
-    public commentId: number | null = null; // // Si comento esta linea el implements da error porque es un atributo obligatorio
+    public noteId?: number; // Inicializa noteId como null para evitar que sea undefined y cumplir con la interfaz LikeAttributes, que espera number o null.
+    public commentId?: number; // // Si comento esta linea el implements da error porque es un atributo obligatorio
     public readonly createdAt?: Date; // Si comento esta linea el implements no da error porque es un atributo opcional
     public readonly updatedAt?: Date; // Si comento esta linea el implements no da error porque es un atributo opcional
 }
@@ -99,7 +99,7 @@ Like.init(
                 // Si ninguno tiene valor (ambos son null), también lanza un Error.
                 // Solo permite uno de los dos (noteId o commentId), pero nunca ambos ni ninguno.
                 if(( this.noteId && this.commentId) || (!this.noteId && !this.commentId)) {
-                    throw new Error('Debe tener noteId o commentId, pero no ambos ni ninguno.');
+                    throw new Error('Debe tener noteId o commentId, pero no ambos');
                 }
             }
         }

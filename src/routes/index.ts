@@ -1,7 +1,11 @@
 // Archivo principal de rutas
 import { Router } from 'express';
-import userRouter from './user.controller';
-import noteRouter from './note.controller';
+import userRouter from './user.routes';
+import noteRouter from './note.routes';
+import likeRouter from './like.routes';
+import commentController from './comment.routes';
+
+import healthRouter from  './health.routes';
 
 const router = Router();
 
@@ -11,8 +15,10 @@ router.get('/', (_req, res) => {
 });
 
 // Importar rutas
-// router.use(healthRoutes);
+router.use(healthRouter);
 router.use(userRouter);
 router.use(noteRouter);
+router.use(likeRouter);
+router.use(commentController);
 
 export default router;

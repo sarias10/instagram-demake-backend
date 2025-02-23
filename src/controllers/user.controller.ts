@@ -20,8 +20,8 @@ export const createUser = async (req: CustomRequest<UserCreationAttributes>, res
 
 export const getAllUsers = async (_req: CustomRequest<UserCreationAttributes>, res: Response) => {
     try {
-        const notes = await User.findAll();
-        res.status(200).json(notes);
+        const users = await User.findAll();
+        res.status(200).json(users);
     } catch (error) {
         if (error instanceof Error) {
             console.log(error.message);

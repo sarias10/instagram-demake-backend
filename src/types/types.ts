@@ -47,8 +47,8 @@ export type UserCreationAttributes = Omit<UserAttributes, 'id' | 'createdAt' | '
 export interface LikeAttributes {
   id: number;
   userId: number;
-  noteId: number | null;
-  commentId: number | null;
+  noteId?: number;
+  commentId?: number;
   createdAt?: Date; // Fecha de creación (opcional, tipo Date)
   updatedAt?: Date; // Fecha de última actualización (opcional, tipo Date)
 }
@@ -60,8 +60,7 @@ export interface CommentAttributes {
   id: number; // Identificador único del comentario
   content: string; // Contenido del comentario
   userId: number; // ID del usuario que creó el comentario
-  noteId: number| null; // ID de la nota a la que pertenece el comentario (null si es un comentario a otro comentario)
-  parentId: number| null; // ID del comentario padre si es una respuesta (null si es un comentario principal)
+  noteId?: number; // ID de la nota a la que pertenece el comentario (null si es un comentario a otro comentario)
   createdAt?: Date; // Fecha de creación (opcional, definida automáticamente)
   updatedAt?: Date; // Fecha de última actualización (opcional, definida automáticamente)
 }
