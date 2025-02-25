@@ -4,10 +4,10 @@ import { config } from './config/env';
 import { checkDatabaseConnection } from './config/database';
 
 const startServer = async (): Promise<void> => {
-  await checkDatabaseConnection();
-  app.listen(config.port, () => {
-    console.log(`🚀 Server running on http://localhost:${config.port}`);
-  });
+    await checkDatabaseConnection();
+    app.listen(config.port, () => {
+        console.log(`🚀 Server running on http://localhost:${config.port}`);
+    });
 };
 
 void startServer();

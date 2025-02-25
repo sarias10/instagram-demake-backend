@@ -3,7 +3,8 @@ import { Router } from 'express';
 import userRouter from './user.routes';
 import noteRouter from './note.routes';
 import likeRouter from './like.routes';
-import commentController from './comment.routes';
+import commentRouter from './comment.routes';
+import loginRouter from './login.routes';
 
 import healthRouter from  './health.routes';
 
@@ -19,6 +20,7 @@ router.use(healthRouter);
 router.use(userRouter);
 router.use(noteRouter);
 router.use(likeRouter);
-router.use(commentController);
+router.use(commentRouter);
+router.use(loginRouter);
 
 export default router;

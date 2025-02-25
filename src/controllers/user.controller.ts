@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import brcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 import { CustomRequest, UserCreationAttributes } from '../types/types';
 
@@ -19,7 +19,7 @@ export const createUser = async (req: CustomRequest<UserCreationAttributes>, res
         if(password.length >= 3){
             const saltRounds = 10;
             //ciframos la contraseña recibida
-            const passwordHash = await brcrypt.hash(password, saltRounds);
+            const passwordHash = await bcrypt.hash(password, saltRounds);
 
             //creamos un nuevo objeto usuario
             const newUser = await User.create({
