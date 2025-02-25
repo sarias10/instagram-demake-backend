@@ -21,8 +21,17 @@ export default tseslint.config({
   rules: {
     '@stylistic/semi': 'error',
     '@stylistic/quotes': ['error', 'single'], // Comillas simples
-    '@stylistic/no-trailing-spaces': 'error', // 👈 Sin espacios al final de las líneas
+    '@stylistic/no-trailing-spaces': 'error', // Sin espacios al final de las líneas
     '@stylistic/no-multiple-empty-lines': ['error', { max: 1 }], // 👈 Máximo un salto de línea
+
+    // Indentación con 4 espacios
+    '@stylistic/indent': ['error', 4],
+
+    // Espacios alrededor de los corchetes y los arrasys
+    '@stylistic/object-curly-spacing': ['error', 'always'],
+    '@stylistic/array-bracket-spacing': ['error', 'always'],
+
+
     '@typescript-eslint/no-unsafe-assignment': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off',

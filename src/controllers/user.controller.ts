@@ -1,36 +1,48 @@
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
+import brcrypt from 'bcrypt';
 
 import { CustomRequest, UserCreationAttributes } from '../types/types';
 
 import { User } from '../models/index';
-import { ValidationError } from 'sequelize';
+import { CustomValidationError } from '../utils/errorFactory';
 
-export const createUser = async (req: CustomRequest<UserCreationAttributes>, res: Response) => {
+export const createUser = async (req: CustomRequest<UserCreationAttributes>, res: Response, next: NextFunction) => {
+    const { username, name, password } = req.body;
     try {
-        const newUser = await User.create(req.body);
-        res.status(201).json(newUser);
-    } catch (error){
-        if (error instanceof ValidationError) {
-            console.log(error.errors[0].message); // Error "username must be unique"
-        } else if (error instanceof Error) {
-            console.log(error.message);
-        } else {
-            console.log('Unknown error occurred');
+        const existingUser = await User.findOne({ where: { username: username } });
+        if(existingUser){
+            throw new CustomValidationError('Username must be unique');
         }
-        res.status(500).json({ error: 'Failed to create user' });
+        if(!password){
+            throw new CustomValidationError('Password is missing');
+        }
+        if(password.length >= 3){
+            const saltRounds = 10;
+            //ciframos la contraseña recibida
+            const passwordHash = await brcrypt.hash(password, saltRounds);
+
+            //creamos un nuevo objeto usuario
+            const newUser = await User.create({
+                username,
+                name,
+                password: passwordHash
+            });
+            // Se responde con el usuario creado
+            res.status(201).json(newUser);
+            // Se imprime en consola el usuario creado
+        } else {
+            throw new CustomValidationError('The password must be at least 3 characters long.');
+        }
+    } catch (error){
+        next(error); // Pas ael error al middleware de manejo de errores
     }
 };
 
-export const getAllUsers = async (_req: CustomRequest<UserCreationAttributes>, res: Response) => {
+export const getAllUsers = async (_req: CustomRequest<UserCreationAttributes>, res: Response, next: NextFunction) => {
     try {
         const users = await User.findAll();
         res.status(200).json(users);
     } catch (error) {
-        if (error instanceof Error) {
-            console.log(error.message);
-        } else {
-            console.log('Unknown error occurred');
-        }
-        res.status(500).json({ error: 'Failed to retrieve users' });
+        next(error);
     }
 };

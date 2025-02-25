@@ -8,7 +8,7 @@ class Comment extends Model<CommentAttributes, CommentCreationAttributes> implem
     public id!: number;
     public content!: string;
     public userId!: number;
-    public noteId?: number;
+    public noteId!: number;
     public readonly createdAt?: Date;
     public readonly updatedAt?: Date;
 }
@@ -36,7 +36,7 @@ Comment.init(
         },
         noteId: {
             type: DataTypes.INTEGER,
-            allowNull: true,
+            allowNull: false,
             references: {
                 model: Note,
                 key: 'id',
@@ -50,19 +50,6 @@ Comment.init(
         tableName: 'Comments',
         modelName: 'Comment',
         timestamps: true,
-
-        // Se agrega la validación personalizada aquí
-        validate: { // Sequelize permite agregar un objeto de validación personalizado.
-            onlyOneReference() { // Es una función de validación personalizada. Se ejecuta automáticamente antes de guardar el registro.
-                // Verifica que noteId este presente
-                // Si noteId no tiene valor, lanza un Error.
-                // Si ninguno tiene valor (ambos son null), también lanza un Error.
-                // Solo permite uno de los dos (noteId o parentId), pero nunca ambos ni ninguno.
-                if(!this.noteId) {
-                    throw new Error('Should have noteId');
-                }
-            }
-        }
     }
 );
 

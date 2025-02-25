@@ -21,7 +21,7 @@ import { Comment } from './comment';
 // Al hacer createdAt obligatorio en la interfaz, implements espera que esté en la clase, pero no exige que lo pases al crear el objeto.
 class Like extends Model<LikeAttributes, LikeCreationAttributes> implements LikeAttributes{
     public id!: number; // Utiliza '!' para indicar a TypeScript que esta propiedad siempre tendrá un valor (nunca será undefined o null),
-                        // aunque no se inicialice en el constructor. Se usa en clases que extienden de Model, ya que Sequelize asigna el valor después.
+    // aunque no se inicialice en el constructor. Se usa en clases que extienden de Model, ya que Sequelize asigna el valor después.
     public userId!: number;
     public noteId?: number; // Inicializa noteId como null para evitar que sea undefined y cumplir con la interfaz LikeAttributes, que espera number o null.
     public commentId?: number; // // Si comento esta linea el implements da error porque es un atributo obligatorio
@@ -48,9 +48,9 @@ Like.init(
             references: {
                 model: User,
                 key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE',
         },
         noteId: {
             type: DataTypes.INTEGER,
@@ -82,11 +82,11 @@ Like.init(
         indexes: [ // Se definen índices para optimizar consultas y asegurar unicidad
             {
                 unique: true, // Se asegura que un usuario no pueda dar más de un like a la misma nota
-                fields: ['userId', 'noteId'], // Índice único para (userId, noteId)
+                fields: [ 'userId', 'noteId' ], // Índice único para (userId, noteId)
             },
             {
                 unique: true, // Se asegura que un usuario no pueda dar más de un like al mismo comentario
-                fields: ['userId', 'commentId'], // Índice único para (userId, commentId)
+                fields: [ 'userId', 'commentId' ], // Índice único para (userId, commentId)
             },
         ],
 
@@ -99,7 +99,7 @@ Like.init(
                 // Si ninguno tiene valor (ambos son null), también lanza un Error.
                 // Solo permite uno de los dos (noteId o commentId), pero nunca ambos ni ninguno.
                 if(( this.noteId && this.commentId) || (!this.noteId && !this.commentId)) {
-                    throw new Error('Debe tener noteId o commentId, pero no ambos');
+                    throw new Error('Should have noteId or commentId, not both');
                 }
             }
         }
