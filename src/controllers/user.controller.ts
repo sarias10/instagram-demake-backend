@@ -34,7 +34,7 @@ export const createUser = async (req: CustomRequest<UserCreationAttributes>, res
             throw new CustomValidationError('The password must be at least 3 characters long.');
         }
     } catch (error){
-        next(error); // Pas ael error al middleware de manejo de errores
+        next(error); // Pasa el error al middleware de manejo de errores
     }
 };
 
