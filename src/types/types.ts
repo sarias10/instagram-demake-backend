@@ -17,13 +17,14 @@ Si intentas crear un objeto sin cumplir con esta estructura, TypeScript marcará
 */
 
 import { Request } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
 
 // Tipos para Notas
 export interface NoteAttributes {
     id: number; //Identificador único de la nota (entero)
     title: string; // Título de la nota (texto)
     content: string; // Contenido de la nota (texto)
-    visible: boolean; // Indica si la nota es visible (true o false)
+    visible?: boolean; // Indica si la nota es visible (true o false)
     userId: number; // Identificador del usuario que creó la nota (entero)
     createdAt?: Date; // Fecha de creación (opcional, tipo Date)
     updatedAt?: Date; // Fecha de última actualización (opcional, tipo Date)
@@ -67,7 +68,19 @@ export interface CommentAttributes {
 
 export type CommentCreationAttributes = Omit<CommentAttributes, 'id' | 'createdAt' | 'updatedAt'>;
 
+export interface DecodedToken {
+    username: string;
+    id: number;
+}
+
 // Tipos para Requests en Express
 export interface CustomRequest<T> extends Request {
     body: T;
+    decodedToken?: DecodedToken;
 }
+
+// Tipo para Request de token
+
+export interface CustomTokenRequest extends Request{
+    decodedToken: string | JwtPayload;
+};
