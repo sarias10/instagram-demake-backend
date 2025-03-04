@@ -9,7 +9,7 @@ export const createDeleteLike = async (req: CustomRequest<LikeCreationAttributes
     try {
         let like;
         if(req.body.noteId && req.body.commentId){
-            throw new CustomValidationError('Like cant have noteId and commentId in body');
+            throw new CustomValidationError('Like cant have noteId and commentId in body', 400);
         }
         else if(req.body.noteId){ // Si envian noteId
             like = await Like.findOne({ where: { userId: req.body.userId, noteId: req.body.noteId } });
