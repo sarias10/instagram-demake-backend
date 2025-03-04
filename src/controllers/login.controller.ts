@@ -25,7 +25,7 @@ export const login = async (req:CustomRequest<UserCreationAttributes>, res: Resp
         // Si user es diferente de null y passwordCorrect es igual false entonces true y false da false. Y false negado es true, por tanto se ejecuta este código.
         // Si user o passwordCorrect son falsos entonces se ejecuta este código.
         if(!(user && passwordCorrect)) {
-            throw new CustomValidationError('invalid username or password');
+            throw new CustomValidationError('Invalid username or password', 400);
         }
 
         // Si todo esta correcto se ejecuta lo que sigue
