@@ -11,10 +11,10 @@ export const createUser = async (req: CustomRequest<UserCreationAttributes>, res
     try {
         const existingUser = await User.findOne({ where: { username: username } });
         if(existingUser){
-            throw new CustomValidationError('Username must be unique');
+            throw new CustomValidationError('Username must be unique', 400);
         }
         if(!password){
-            throw new CustomValidationError('Password is missing');
+            throw new CustomValidationError('Password is missing', 400);
         }
         if(password.length >= 3){
             const saltRounds = 10;
@@ -31,7 +31,7 @@ export const createUser = async (req: CustomRequest<UserCreationAttributes>, res
             res.status(201).json(newUser);
             // Se imprime en consola el usuario creado
         } else {
-            throw new CustomValidationError('The password must be at least 3 characters long.');
+            throw new CustomValidationError('The password must be at least 3 characters long.', 400);
         }
     } catch (error){
         next(error); // Pasa el error al middleware de manejo de errores
