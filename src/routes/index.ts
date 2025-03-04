@@ -1,12 +1,9 @@
 // Archivo principal de rutas
 import { Router } from 'express';
-import userRouter from './user.routes';
-import noteRouter from './note.routes';
-import likeRouter from './like.routes';
-import commentRouter from './comment.routes';
-import loginRouter from './login.routes';
 
-import healthRouter from  './health.routes';
+import protectedRouter from './protected.routes';
+import publicRouter from './public.routes';
+import { tokenExtractor } from '../middlewares/middleware';
 
 const router = Router();
 
@@ -16,11 +13,7 @@ router.get('/', (_req, res) => {
 });
 
 // Importar rutas
-router.use(healthRouter);
-router.use(userRouter);
-router.use(noteRouter);
-router.use(likeRouter);
-router.use(commentRouter);
-router.use(loginRouter);
+router.use('/protected', tokenExtractor, protectedRouter);
+router.use('/public', publicRouter);
 
 export default router;
