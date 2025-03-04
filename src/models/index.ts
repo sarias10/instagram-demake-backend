@@ -26,7 +26,7 @@ Comment.hasMany(Like, { sourceKey: 'id', foreignKey: 'commentId', as: 'likes' })
 Like.belongsTo(Comment, { foreignKey: 'commentId', targetKey: 'id', as: 'comment' });
 
 // Users y likes
-User.hasMany(Like, { sourceKey: 'id', foreignKey: 'userId', as: 'likes'});
+User.hasMany(Like, { sourceKey: 'id', foreignKey: 'userId', as: 'likes' });
 Like.belongsTo(User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
 
 // Exportar los modelos con Sequelize
@@ -36,4 +36,4 @@ export {
     Like,
     Comment,
     //sequelize,
-  };
+};
