@@ -11,7 +11,7 @@ export const healthCheckDatabase = async (_req: Request, res: Response, next: Ne
     }
 };
 
-export const healthChecService = (_req: Request, res: Response, next: NextFunction) => {
+export const healthCheckService = (_req: Request, res: Response, next: NextFunction) => {
     try {
         res.json({ message: '✅ Service is connected' });
     } catch (error) {
