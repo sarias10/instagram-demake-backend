@@ -4,6 +4,8 @@ import { CommentAttributes, CommentCreationAttributes } from '../types/types';
 import { User } from './user';
 import { Note } from './note';
 
+// Implements solo verifica que una clase cumpla con una interfaz, no hereda.
+// Sino implementas algo definido en la interfaz, Typescript dará error.
 class Comment extends Model<CommentAttributes, CommentCreationAttributes> implements CommentAttributes {
     public id!: number;
     public content!: string;
