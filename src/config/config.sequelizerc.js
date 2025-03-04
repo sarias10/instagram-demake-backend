@@ -1,4 +1,6 @@
-require('ts-node/register');
+/* eslint-disable @typescript-eslint/no-require-imports */
+// Conecta sequelize a la base de datos para ejecutar los comandos de sequelize cli y poder hacer migraciones
+require('ts-node/register'); // Debe dejarse asi porque da error si se convierte en modulo ES
 
 const { config } = require('./env.ts');
 
