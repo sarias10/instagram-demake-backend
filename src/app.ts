@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import router from './routes/index';
-import { errorHandler, requestLogger } from './middlewares/middleware';
+import { errorHandler, requestLogger, unknownEndpoint } from './middlewares/middleware';
 // Creamos una nueva instancia de una aplicación Express. `app` es un objeto que tiene métodos para rutas y middleware, entre otras cosas.
 const app = express();
 
@@ -19,6 +19,8 @@ app.use(cors());
 // Rutas
 app.use('/api', router);
 
+// Maneja las solicitudes con endpoints desconocidos
+app.use(unknownEndpoint);
 // Maneja todos los errores, por eso se ejecuta de último
 app.use(errorHandler);
 

@@ -3,6 +3,11 @@ import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from 'sequelize';
 import logger from '../utils/logger';
 import { CustomValidationError } from '../utils/errorFactory';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/env';
+import { CustomTokenRequest } from '../types/types';
+
+//import { CustomTokenRequest } from '../types/types';
 
 const requestLogger = (req: Request, _res: Response, next: NextFunction) => {
     logger.info('Method: ', req.method);
@@ -15,16 +20,19 @@ const requestLogger = (req: Request, _res: Response, next: NextFunction) => {
     next();
 };
 
+const unknownEndpoint = (_req:Request, res: Response) => {
+    res.status(404).send({ error: 'unknown endpoint' });
+};
 // void se usa para indicar que una función no devuelve un valor o llaman a next(), sin devolver un valor.
 const errorHandler = (error: Error, _req: Request, res: Response, next: NextFunction): void => {
     logger.error(error.name + ':', error.message);
     if(error instanceof ValidationError){
-        res.status(400).json({ error: error.errors[0].message }); // Como es validación entonces si se le puede enviar el mensaje al usuario
+        res.status(400).json({ message: 'Validation error', error: error.errors[0].message }); // Como es validación entonces si se le puede enviar el mensaje al usuario
         // Detiene la ejecución aquí para que no vuelva a imprimir el error en la consola
         return;
     }
     if(error instanceof CustomValidationError){
-        res.status(400).json({ error: error.message });
+        res.status(error.statusCode).json({ message: 'Validation error', error:error.message });
         return;
     }
     else {
@@ -35,4 +43,16 @@ const errorHandler = (error: Error, _req: Request, res: Response, next: NextFunc
     next(error);
 };
 
-export { errorHandler, requestLogger };
+const tokenExtractor = (req: Request, _res: Response, next: NextFunction) => {
+    // Se obtiene el encabezado authorization de la solicitud
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if(!token){
+        throw new CustomValidationError('No token provided', 401);
+    }
+    const decoded = jwt.verify(token, config.secret);
+    (req as CustomTokenRequest).decodedToken = decoded;
+
+    next();
+};
+
+export { errorHandler, requestLogger, tokenExtractor, unknownEndpoint };
