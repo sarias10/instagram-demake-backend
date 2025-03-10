@@ -3,25 +3,11 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up (queryInterface, Sequelize) {
-        await queryInterface.createTable('Comments', {
+        await queryInterface.createTable('PostMedias',{
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
-                primaryKey: true,
-            },
-            content: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-            userId: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-                references: {
-                    model: 'Users',
-                    key: 'id',
-                },
-                onUpdate: 'CASCADE',
-                onDelete: 'CASCADE',
+                primaryKey: true
             },
             postId: {
                 type: Sequelize.INTEGER,
@@ -31,7 +17,15 @@ module.exports = {
                     key: 'id',
                 },
                 onUpdate: 'CASCADE',
-                onDelete: 'CASCADE',
+                onDelete: 'CASCADE'
+            },
+            mediaUrl: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            mediaType: {
+                type: Sequelize.ENUM('image','video'),
+                allowNull: false,
             },
             createdAt: {
                 allowNull: false,
@@ -42,10 +36,9 @@ module.exports = {
                 type: Sequelize.DATE,
             },
         });
-
     },
 
     async down (queryInterface, _Sequelize) {
-        await queryInterface.dropTable('Comments');
+        await queryInterface.dropTable('PostMedias');
     }
 };

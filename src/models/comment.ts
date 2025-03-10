@@ -2,7 +2,7 @@ import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/database';
 import { CommentAttributes, CommentCreationAttributes } from '../types/types';
 import { User } from './user';
-import { Note } from './note';
+import { Post } from './post';
 
 // Implements solo verifica que una clase cumpla con una interfaz, no hereda.
 // Sino implementas algo definido en la interfaz, Typescript dará error.
@@ -10,7 +10,7 @@ class Comment extends Model<CommentAttributes, CommentCreationAttributes> implem
     public id!: number;
     public content!: string;
     public userId!: number;
-    public noteId!: number;
+    public postId!: number;
     public readonly createdAt?: Date;
     public readonly updatedAt?: Date;
 }
@@ -36,11 +36,11 @@ Comment.init(
             onUpdate: 'CASCADE',
             onDelete: 'CASCADE',
         },
-        noteId: {
+        postId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: Note,
+                model: Post,
                 key: 'id',
             },
             onUpdate: 'CASCADE',

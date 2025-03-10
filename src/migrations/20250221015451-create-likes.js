@@ -19,11 +19,11 @@ module.exports = {
                 onUpdate: 'CASCADE',
                 onDelete: 'CASCADE'
             },
-            noteId: {
+            postId: {
                 type: Sequelize.INTEGER,
                 allowNull: true,
                 references: {
-                    model: 'Notes', // Nombre de la tabla relacionada
+                    model: 'Posts', // Nombre de la tabla relacionada
                     key: 'id',
                 },
                 onUpdate: 'CASCADE',
@@ -49,14 +49,14 @@ module.exports = {
             },
         });
 
-        // Agrega un índice único en las columnas 'userId' y 'noteId' de la tabla 'Likes'.
+        // Agrega un índice único en las columnas 'userId' y 'postId' de la tabla 'Likes'.
         // Esto garantiza que un usuario no pueda dar más de un like a la misma nota,
-        // ya que la combinación de 'userId' y 'noteId' debe ser única en toda la tabla.
+        // ya que la combinación de 'userId' y 'postId' debe ser única en toda la tabla.
         // Si se intenta insertar un registro con la misma combinación que ya existe,
         // se producirá un error de duplicado, preservando así la integridad de los datos.
         // Optimiza el rendimiento de las consultas compuestas y la de userId porque es el primer valor del indice
-        // pero no optimiza la de noteId.
-        await queryInterface.addIndex('Likes', [ 'userId', 'noteId' ], {
+        // pero no optimiza la de postId.
+        await queryInterface.addIndex('Likes', [ 'userId', 'postId' ], {
             unique: true,
         });
         await queryInterface.addIndex('Likes', [ 'userId', 'commentId' ], {

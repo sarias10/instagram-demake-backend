@@ -8,11 +8,11 @@ import { CustomValidationError } from '../utils/errorFactory';
 export const createDeleteLike = async (req: CustomRequest<LikeCreationAttributes>, res: Response, next: NextFunction) => {
     try {
         let like;
-        if(req.body.noteId && req.body.commentId){
-            throw new CustomValidationError('Like cant have noteId and commentId in body', 400);
+        if(req.body.postId && req.body.commentId){
+            throw new CustomValidationError('Like cant have postId and commentId in body', 400);
         }
-        else if(req.body.noteId){ // Si envian noteId
-            like = await Like.findOne({ where: { userId: req.body.userId, noteId: req.body.noteId } });
+        else if(req.body.postId){ // Si envian noteId
+            like = await Like.findOne({ where: { userId: req.body.userId, postId: req.body.postId } });
         }
         else if(req.body.commentId){ // Si envia commentId
             like = await Like.findOne({ where: { userId: req.body.userId, commentId: req.body.commentId } });
@@ -26,15 +26,6 @@ export const createDeleteLike = async (req: CustomRequest<LikeCreationAttributes
             logger.info('like created');
             res.status(201).json(newLike);
         }
-    } catch (error) {
-        next(error);
-    }
-};
-
-export const getAllLikes = async (_req: CustomRequest<LikeCreationAttributes>, res: Response, next: NextFunction) => {
-    try {
-        const likes = await Like.findAll();
-        res.status(200).json(likes);
     } catch (error) {
         next(error);
     }

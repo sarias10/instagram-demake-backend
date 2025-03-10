@@ -31,28 +31,31 @@ const errorHandler = (error: Error, _req: Request, res: Response, next: NextFunc
         // Detiene la ejecución aquí para que no vuelva a imprimir el error en la consola
         return;
     }
-    if(error instanceof CustomValidationError){
+    else if(error instanceof CustomValidationError){
         res.status(error.statusCode).json({ message: 'Validation error', error:error.message });
         return;
     }
     else {
         res.status(500).json({ message: 'Internal server error' });
     }
-    // Pasar el error al siguiente middleware si no es de validación
-    logger.info('---');
     next(error);
+    // Pasar el error al siguiente middleware si no es de validación
 };
 
 const tokenExtractor = (req: Request, _res: Response, next: NextFunction) => {
+    try {
     // Se obtiene el encabezado authorization de la solicitud
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if(!token){
-        throw new CustomValidationError('No token provided', 401);
-    }
-    const decoded = jwt.verify(token, config.secret);
-    (req as CustomTokenRequest).decodedToken = decoded;
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if(!token){
+            throw new CustomValidationError('No token provided', 401);
+        }
+        const decoded = jwt.verify(token, config.secret);
+        (req as CustomTokenRequest).decodedToken = decoded;
 
-    next();
+        next();
+    }catch(error){
+        next(error);
+    }
 };
 
 export { errorHandler, requestLogger, tokenExtractor, unknownEndpoint };

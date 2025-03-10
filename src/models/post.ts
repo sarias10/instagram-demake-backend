@@ -1,37 +1,26 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/database';
-import { NoteAttributes, NoteCreationAttributes } from '../types/types';
+import { PostAttributes, PostCreationAttributes } from '../types/types';
 import { User } from './user';
 
-class Note extends Model<NoteAttributes, NoteCreationAttributes> implements NoteAttributes {
+class Post extends Model<PostAttributes, PostCreationAttributes> implements PostAttributes {
     public id!: number;
-    public title!: string;
-    public content!: string;
-    public visible?: boolean;
+    public description!: string;
     public userId!: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }
 
-Note.init(
+Post.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        title: {
+        description: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        content: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        },
-        visible: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true,
         },
         userId: {
             type: DataTypes.INTEGER,
@@ -46,10 +35,10 @@ Note.init(
     },
     {
         sequelize,
-        tableName: 'Notes',
-        modelName: 'Note',
+        tableName: 'Posts',
+        modelName: 'Post',
         timestamps: true,
     }
 );
 
-export { Note };
+export { Post };

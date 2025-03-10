@@ -3,24 +3,15 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up (queryInterface, Sequelize) {
-        await queryInterface.createTable('Notes', {
+        await queryInterface.createTable('Posts', {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
             },
-            title: {
+            description: {
                 type: Sequelize.STRING,
                 allowNull: false
-            },
-            content: {
-                type: Sequelize.TEXT,
-                allowNull: false
-            },
-            visible: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
-                defaultValue: true,
             },
             userId: {
                 type: Sequelize.INTEGER,
@@ -42,14 +33,14 @@ module.exports = {
             }
         });
 
-        // Agrega un índice en la columna 'userId' de la tabla 'Notes'.
-        // Esto mejora el rendimiento de las consultas que buscan notas
+        // Agrega un índice en la columna 'userId' de la tabla 'Posts'.
+        // Esto mejora el rendimiento de las consultas que buscan posts
         // por el 'userId', como cuando se obtiene una lista de notas de un usuario específico.
         // No es un índice único, por lo que puede haber múltiples notas con el mismo 'userId'.
-        await queryInterface.addIndex('Notes', [ 'userId' ]);
+        await queryInterface.addIndex('Posts', [ 'userId' ]);
     },
 
     async down (queryInterface, _Sequelize) {
-        await queryInterface.dropTable('Notes');
+        await queryInterface.dropTable('Posts');
     }
 };

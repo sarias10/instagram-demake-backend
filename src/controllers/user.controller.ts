@@ -29,20 +29,10 @@ export const createUser = async (req: CustomRequest<UserCreationAttributes>, res
             });
             // Se responde con el usuario creado
             res.status(201).json(newUser);
-            // Se imprime en consola el usuario creado
         } else {
             throw new CustomValidationError('The password must be at least 3 characters long.', 400);
         }
     } catch (error){
         next(error); // Pasa el error al middleware de manejo de errores
-    }
-};
-
-export const getAllUsers = async (_req: CustomRequest<UserCreationAttributes>, res: Response, next: NextFunction) => {
-    try {
-        const users = await User.findAll();
-        res.status(200).json(users);
-    } catch (error) {
-        next(error);
     }
 };

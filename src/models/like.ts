@@ -2,7 +2,7 @@ import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/database';
 import { LikeAttributes, LikeCreationAttributes } from '../types/types';
 import { User } from './user';
-import { Note } from './note';
+import { Post } from './post';
 import { Comment } from './comment';
 
 // La clase 'Like' extiende 'Model' de Sequelize para representar la tabla 'Likes' en la base de datos.
@@ -52,11 +52,11 @@ Like.init(
             onUpdate: 'CASCADE',
             onDelete: 'CASCADE',
         },
-        noteId: {
+        postId: {
             type: DataTypes.INTEGER,
             allowNull: true,
             references: {
-                model: Note,
+                model: Post,
                 key: 'id',
             },
             onUpdate: 'CASCADE',
@@ -82,7 +82,7 @@ Like.init(
         indexes: [ // Se definen índices para optimizar consultas y asegurar unicidad
             {
                 unique: true, // Se asegura que un usuario no pueda dar más de un like a la misma nota
-                fields: [ 'userId', 'noteId' ], // Índice único para (userId, noteId)
+                fields: [ 'userId', 'postId' ], // Índice único para (userId, noteId)
             },
             {
                 unique: true, // Se asegura que un usuario no pueda dar más de un like al mismo comentario
@@ -98,7 +98,7 @@ Like.init(
                 // Si ambos (noteId y commentId) tienen valores, lanza un Error.
                 // Si ninguno tiene valor (ambos son null), también lanza un Error.
                 // Solo permite uno de los dos (noteId o commentId), pero nunca ambos ni ninguno.
-                if(( this.noteId && this.commentId) || (!this.noteId && !this.commentId)) {
+                if(( this.postId && this.commentId) || (!this.postId && !this.commentId)) {
                     throw new Error('Should have noteId or commentId, not both');
                 }
             }

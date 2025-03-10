@@ -18,19 +18,37 @@ Si intentas crear un objeto sin cumplir con esta estructura, TypeScript marcará
 
 import { Request } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
+// Tipos para PostMedia
+export interface PostMediaAttributes {
+    id: number; // Identificador único
+    postId: number; // Relación con el post
+    mediaUrl: string; // URL del archivo en S3
+    mediaType: 'image' | 'video'; // Tupo de archivo
+    createdAt?: Date;
+    updatedAt?: Date;
+}
 
-// Tipos para Notas
-export interface NoteAttributes {
-    id: number; //Identificador único de la nota (entero)
-    title: string; // Título de la nota (texto)
-    content: string; // Contenido de la nota (texto)
-    visible?: boolean; // Indica si la nota es visible (true o false)
+export type PostMediaCreationAttributes = Omit<PostMediaAttributes, 'id' | 'createdAt' | 'updatedAt'>;
+
+export interface UploadToS3Attributes {
+    description: string,
+    uploadedFiles: {
+        mediaUrl: string,
+        mediaType: 'image' | 'video',
+    }[];  // Ahora acepta archivos subidos opcionalmente
+}
+// Tipos para Posts
+export interface PostAttributes {
+    id: number; //Identificador único del post (entero)
+    description: string; // Descricion del post (texto)
     userId: number; // Identificador del usuario que creó la nota (entero)
     createdAt?: Date; // Fecha de creación (opcional, tipo Date)
     updatedAt?: Date; // Fecha de última actualización (opcional, tipo Date)
 }
 
-export type NoteCreationAttributes = Omit<NoteAttributes, 'id' | 'createdAt' | 'updatedAt'>;
+export type PostCreationAttributes = Omit<PostAttributes, 'id' | 'createdAt' | 'updatedAt'> & {
+    uploadedFiles?: PostMediaCreationAttributes[];  // Ahora acepta archivos subidos opcionalmente
+};
 
 // Tipos para Usuarios
 export interface UserAttributes {
@@ -48,7 +66,7 @@ export type UserCreationAttributes = Omit<UserAttributes, 'id' | 'createdAt' | '
 export interface LikeAttributes {
     id: number;
     userId: number;
-    noteId?: number;
+    postId?: number;
     commentId?: number;
     createdAt?: Date; // Fecha de creación (opcional, tipo Date)
     updatedAt?: Date; // Fecha de última actualización (opcional, tipo Date)
@@ -61,7 +79,7 @@ export interface CommentAttributes {
     id: number; // Identificador único del comentario
     content: string; // Contenido del comentario
     userId: number; // ID del usuario que creó el comentario
-    noteId: number; // ID de la nota a la que pertenece el comentario
+    postId: number; // ID de la nota a la que pertenece el comentario
     createdAt?: Date; // Fecha de creación (opcional, definida automáticamente)
     updatedAt?: Date; // Fecha de última actualización (opcional, definida automáticamente)
 }
