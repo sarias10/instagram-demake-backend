@@ -46,6 +46,10 @@ export interface PostAttributes {
     updatedAt?: Date; // Fecha de última actualización (opcional, tipo Date)
 }
 
+export interface PostWithMediaAttributes extends PostAttributes {
+    media?: PostMediaAttributes[];
+}
+
 export type PostCreationAttributes = Omit<PostAttributes, 'id' | 'createdAt' | 'updatedAt'> & {
     uploadedFiles?: PostMediaCreationAttributes[];  // Ahora acepta archivos subidos opcionalmente
 };
@@ -56,11 +60,12 @@ export interface UserAttributes {
     username: string;
     name: string;
     password: string;
+    visible: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-export type UserCreationAttributes = Omit<UserAttributes, 'id' | 'createdAt' | 'updatedAt'>;
+export type UserCreationAttributes = Omit<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'visible'>;
 
 //Tipos para Likes
 export interface LikeAttributes {

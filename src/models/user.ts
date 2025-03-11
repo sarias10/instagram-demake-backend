@@ -7,6 +7,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public username!: string;
     public name!: string;
     public password!: string;
+    public visible!: boolean;
     public readonly createdAt?: Date;
     public readonly updatedAt?: Date;
 }
@@ -31,6 +32,11 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        visible: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        }
     },
     {
         sequelize,

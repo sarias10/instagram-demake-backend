@@ -23,6 +23,11 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false
             },
+            visible: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+                defaultValue: true
+            },
             createdAt: { // Sino se pone aquí entonces no aparece creado en la base de datos
                 allowNull: false,
                 type: Sequelize.DATE
