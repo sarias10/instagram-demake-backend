@@ -6,21 +6,21 @@ import { Like } from './like';
 import { Comment } from './comment';
 import { PostMedia } from './postMedia';
 
-// Users y Notes
-User.hasMany(Post, { sourceKey: 'id', foreignKey: 'userId', as: 'notes' }); // sourceKey: 'id' -> la clave primaria
-Post.belongsTo(User, { foreignKey: 'userId', targetKey: 'id', as: 'author' }); // foreignKey: 'userId' -> la clave foránea en Note
+// Users y Post
+User.hasMany(Post, { sourceKey: 'id', foreignKey: 'userId', as: 'posts' }); // sourceKey: 'id' -> la clave primaria
+Post.belongsTo(User, { foreignKey: 'userId', targetKey: 'id', as: 'author' }); // foreignKey: 'userId' -> la clave foránea en Post
 
 // Users y Comments
 User.hasMany(Comment, { sourceKey: 'id', foreignKey: 'userId', as: 'comments' });
 Comment.belongsTo(User, { foreignKey: 'userId', targetKey: 'id', as: 'author' });
 
-// Notes y Comments
-Post.hasMany(Comment, { sourceKey: 'id', foreignKey: 'noteId', as: 'comments' });
-Comment.belongsTo(Post, { foreignKey: 'noteId', targetKey: 'id', as: 'note' });
+// Posts y Comments
+Post.hasMany(Comment, { sourceKey: 'id', foreignKey: 'postId', as: 'comments' });
+Comment.belongsTo(Post, { foreignKey: 'postId', targetKey: 'id', as: 'post' });
 
-// Likes y Notes
-Post.hasMany(Like, { sourceKey: 'id', foreignKey: 'noteId', as: 'likes' });
-Like.belongsTo(Post, { foreignKey: 'noteId', targetKey: 'id', as: 'note' });
+// Likes y Posts
+Post.hasMany(Like, { sourceKey: 'id', foreignKey: 'postId', as: 'likes' });
+Like.belongsTo(Post, { foreignKey: 'postId', targetKey: 'id', as: 'post' });
 
 // Likes y Comments
 Comment.hasMany(Like, { sourceKey: 'id', foreignKey: 'commentId', as: 'likes' });

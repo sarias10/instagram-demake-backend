@@ -12,19 +12,18 @@ export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: 
         const { description, uploadedFiles } = req.body;
 
         if (!req.decodedToken) {
-            throw new CustomValidationError('Unauthorized: Token not found', 401);
+            throw new CustomValidationError('Unauthorized: Decoded Token not found', 401);
         }
         if(uploadedFiles.length===0){
             throw new CustomValidationError('No files uploaded', 400);
         }
-        console.log('uploaded files', uploadedFiles);
         // decodedToken tiene username y id pero solo uso id
-        const { id: userId } = req.decodedToken;
+        const { id } = req.decodedToken;
 
         // Crear el nuevo post en la base de datos
         const newPost = await Post.create({
-            description,
-            userId
+            description: description,
+            userId: id
         });
 
         // Si se subieron archivos, guardarlos en la tabla PostMedia
