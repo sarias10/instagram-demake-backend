@@ -4,6 +4,7 @@ import { CustomRequest, PostAttributes, PostCreationAttributes, PostWithMediaAtt
 import { Comment, Post, PostMedia, User } from '../models/index';
 import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
+import { sequelize } from '../config/database';
 
 const awsCloudformationDomain = config.aws.awsCloudformationDomain;
 
@@ -49,10 +50,20 @@ export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttribut
         }
 
         const posts: PostWithMediaAttributes[] = await Post.findAll({
-            attributes: [ 'id', 'description' ],
+            attributes: [
+                'id',
+                'description',
+                [
+                    sequelize.literal(`(
+                        SELECT CAST(COUNT(*) AS INTEGER)
+                        FROM "Likes" AS likes
+                        WHERE likes."postId" = "Post"."id"
+                    )`), 'likesCount'
+                ],
+            ],
             include: [
-                { model: PostMedia, as: 'media', attributes:[ 'id', 'mediaUrl', 'mediaType' ] },
                 { model: User, as: 'author', where: { visible: true }, attributes: [ 'id','username' ] },// Autor del post y solo trae los post de usuarios visibles
+                { model: PostMedia, as: 'media', attributes:[ 'id', 'mediaUrl', 'mediaType' ] },
                 { model: Comment, as: 'comments', attributes: [ 'content' ],
                     include: [
                         { model: User, as: 'author', attributes: [ 'id', 'username' ] }// Autor del comentario
@@ -82,6 +93,17 @@ export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationA
         }
         const { id } = req.decodedToken;
         const posts: PostWithMediaAttributes[] = await Post.findAll({
+            attributes: [
+                'id',
+                'description',
+                [
+                    sequelize.literal(`(
+                        SELECT CAST(COUNT(*) AS INTEGER)
+                        FROM "Likes" AS likes
+                        WHERE likes."postId" = "Post"."id"
+                    )`), 'likesCount'
+                ],
+            ],
             where: { userId: id }, // Usuario loggeado: id del usuario que viene en el token
             include: [
                 { model: PostMedia, as: 'media', attributes: [ 'id', 'mediaUrl', 'mediaType' ] },
@@ -129,6 +151,17 @@ export const getAllVisblePostsFromUser = async (req: CustomRequest<PostFromOther
             throw new CustomValidationError('username is not public');
         }
         const posts: PostWithMediaAttributes[] = await Post.findAll({
+            attributes: [
+                'id',
+                'description',
+                [
+                    sequelize.literal(`(
+                        SELECT CAST(COUNT(*) AS INTEGER)
+                        FROM "Likes" AS likes
+                        WHERE likes."postId" = "Post"."id"
+                    )`), 'likesCount'
+                ],
+            ],
             include: [
                 { model: PostMedia, as: 'media' },
                 // Agrego el visible por si algo
