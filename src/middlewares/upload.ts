@@ -32,7 +32,12 @@ export const uploadToS3 = async (req: CustomRequest<UploadToS3Attributes>, _res:
         const files = req.files;
 
         const uploadedFiles = await Promise.all(files.map(async (file) => {
-            const typeOfFile: 'image' | 'video' = file.mimetype.startsWith('image') ? 'image' : 'video';
+            console.log('file type:', file.mimetype);
+            console.log('starts with', file.mimetype.startsWith('image'));
+            if(!file.mimetype.startsWith('image') && !file.mimetype.startsWith('video')){ // Valida que el archivo sea una imagen o un video
+                throw new CustomValidationError('files are not image or video', 400);
+            }
+            const typeOfFile: 'image' | 'video' = file.mimetype.startsWith('image')? 'image': 'video';
             const folder = file.mimetype.startsWith('image') ? 'images' : 'videos';
             const fileName = `user-${userId}/${folder}/${Date.now()}`;
 
