@@ -49,6 +49,16 @@ module.exports = {
             },
         });
 
+        // Agregar la restricción CHECK para que al menos uno de los dos (postId o commentId) no sea NULL
+        await queryInterface.sequelize.query(`
+            ALTER TABLE "Likes"
+            ADD CONSTRAINT "likes_postId_commentId_check"
+            CHECK (
+                ("postId" IS NOT NULL AND "commentId" IS NULL) OR
+                ("postId" IS NULL AND "commentId" IS NOT NULL)
+            );
+        `);
+
         // Agrega un índice único en las columnas 'userId' y 'postId' de la tabla 'Likes'.
         // Esto garantiza que un usuario no pueda dar más de un like a la misma nota,
         // ya que la combinación de 'userId' y 'postId' debe ser única en toda la tabla.

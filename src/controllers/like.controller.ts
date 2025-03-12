@@ -3,26 +3,45 @@ import { NextFunction, Response } from 'express';
 import { CustomRequest, LikeCreationAttributes } from '../types/types';
 import { Like } from '../models/index';
 import logger from '../utils/logger';
-import { CustomValidationError } from '../utils/errorFactory';
+import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 
-export const createDeleteLike = async (req: CustomRequest<LikeCreationAttributes>, res: Response, next: NextFunction) => {
+export const createOrDeleteLike = async (req: CustomRequest<LikeCreationAttributes>, res: Response, next: NextFunction) => {
     try {
         let like;
-        if(req.body.postId && req.body.commentId){
+        let newLike;
+        const { postId, commentId } = req.body;
+        if(!req.decodedToken){
+            throw new CustomSecretValidationError('Unauthorized: Decoded Token not found', 401);
+        }
+        const { id } = req.decodedToken;
+        if(!postId && !commentId){ // Si faltan los dos
+            throw new CustomValidationError('postId or commentId is missing');
+        }
+        if(req.body.postId && req.body.commentId){ // Si estan los dos
             throw new CustomValidationError('Like cant have postId and commentId in body', 400);
         }
-        else if(req.body.postId){ // Si envian noteId
-            like = await Like.findOne({ where: { userId: req.body.userId, postId: req.body.postId } });
+        else if(postId){ // Si envian postId
+            like = await Like.findOne({ where: { userId: id, postId: postId } });
         }
-        else if(req.body.commentId){ // Si envia commentId
-            like = await Like.findOne({ where: { userId: req.body.userId, commentId: req.body.commentId } });
+        else if(commentId){ // Si envian commentId
+            like = await Like.findOne({ where: { userId: id, commentId: commentId } });
         }
-        if(like){
+        if(like){ // Si like existe en la base de datos se elimina
             await like.destroy();
             logger.info('like deleted');
             res.status(204).end();
-        } else {
-            const newLike = await Like.create(req.body);
+        } else { // Si like no existe en la base de datos, se crea
+            if(postId){// Si en la request viene postId
+                newLike = await Like.create({
+                    userId: id,
+                    postId: postId,
+                });
+            } else{// Si en la request viene commentId
+                newLike = await Like.create({
+                    userId: id,
+                    commentId: commentId,
+                });
+            }
             logger.info('like created');
             res.status(201).json(newLike);
         }

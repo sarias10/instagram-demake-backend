@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 //import logger from '../utils/logger';
 import { ValidationError } from 'sequelize';
 import logger from '../utils/logger';
-import { CustomValidationError } from '../utils/errorFactory';
+import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
 import { CustomTokenRequest } from '../types/types';
@@ -25,14 +25,20 @@ const unknownEndpoint = (_req:Request, res: Response) => {
 };
 // void se usa para indicar que una función no devuelve un valor o llaman a next(), sin devolver un valor.
 const errorHandler = (error: Error, _req: Request, res: Response, next: NextFunction): void => {
-    logger.error(error.name + ':', error.message);
     if(error instanceof ValidationError){
+        logger.error(error.name + ':', error.message);
         res.status(400).json({ message: 'Validation error', error: error.errors[0].message }); // Como es validación entonces si se le puede enviar el mensaje al usuario
         // Detiene la ejecución aquí para que no vuelva a imprimir el error en la consola
         return;
     }
     else if(error instanceof CustomValidationError){
+        logger.error(error.name + ':', error.message);
         res.status(error.statusCode).json({ message: 'Validation error', error:error.message });
+        return;
+    }
+    else if(error instanceof CustomSecretValidationError){
+        logger.error(error.name + ':', error.message);
+        res.status(500).json({ message: 'Internal server error' });
         return;
     }
     else {

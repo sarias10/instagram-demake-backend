@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express';
 
 import { CustomRequest, PostAttributes, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
 import { Post, PostMedia, User } from '../models/index';
-import { CustomValidationError } from '../utils/errorFactory';
+import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
 
 const awsCloudformationDomain = config.aws.awsCloudformationDomain;
@@ -12,7 +12,7 @@ export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: 
         const { description, uploadedFiles } = req.body;
 
         if (!req.decodedToken) {
-            throw new CustomValidationError('Unauthorized: Decoded Token not found', 401);
+            throw new CustomSecretValidationError('Unauthorized: Decoded Token not found', 401);
         }
         if(uploadedFiles.length===0){
             throw new CustomValidationError('No files uploaded', 400);

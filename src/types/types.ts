@@ -99,7 +99,7 @@ export interface DecodedToken {
 // Tipos para Requests en Express
 export interface CustomRequest<T> extends Request {
     body: T;
-    decodedToken?: DecodedToken;
+    decodedToken?: DecodedToken; // No es necesario que este en la consulta
 }
 
 // Tipo para Request de token
