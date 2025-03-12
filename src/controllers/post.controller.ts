@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 
 import { CustomRequest, PostAttributes, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
-import { Post, PostMedia, User } from '../models/index';
+import { Comment, Post, PostMedia, User } from '../models/index';
 import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
 
@@ -49,12 +49,15 @@ export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttribut
         }
 
         const posts: PostWithMediaAttributes[] = await Post.findAll({
+            attributes: [ 'id', 'description' ],
             include: [
-                { model: PostMedia, as: 'media' },
-                { model: User, as: 'author',
-                    where: { visible: true },
-                    attributes: [ 'username' ]
-                }
+                { model: PostMedia, as: 'media', attributes:[ 'id', 'mediaUrl', 'mediaType' ] },
+                { model: User, as: 'author', where: { visible: true }, attributes: [ 'id','username' ] },// Autor del post y solo trae los post de usuarios visibles
+                { model: Comment, as: 'comments', attributes: [ 'content' ],
+                    include: [
+                        { model: User, as: 'author', attributes: [ 'id', 'username' ] }// Autor del comentario
+                    ]
+                },
             ]
         });
 
@@ -79,8 +82,16 @@ export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationA
         }
         const { id } = req.decodedToken;
         const posts: PostWithMediaAttributes[] = await Post.findAll({
-            where: { userId: id },
-            include: [ { model: PostMedia, as: 'media' } ]
+            where: { userId: id }, // Usuario loggeado: id del usuario que viene en el token
+            include: [
+                { model: PostMedia, as: 'media', attributes: [ 'id', 'mediaUrl', 'mediaType' ] },
+                { model: User, as: 'author', attributes: [ 'id', 'username' ] }, // Autor del post
+                { model: Comment, as: 'comments', attributes: [ 'content' ],
+                    include: [
+                        { model: User, as: 'author', attributes: [ 'id', 'username' ] } // author del comentario
+                    ]
+                },
+            ]
         });
 
         // Generar URLs usando CloudFront
@@ -118,11 +129,16 @@ export const getAllVisblePostsFromUser = async (req: CustomRequest<PostFromOther
             throw new CustomValidationError('username is not public');
         }
         const posts: PostWithMediaAttributes[] = await Post.findAll({
-            include: [ { model: PostMedia, as: 'media' },
-                { model: User, as: 'author',
-                    where: { username: user.username },
-                    attributes: [ 'id', 'username', 'name', 'visible' ]
+            include: [
+                { model: PostMedia, as: 'media' },
+                // Agrego el visible por si algo
+                { model: User, as: 'author', where: { username: user.username, visible: true }, attributes: [ 'id', 'username', 'name' ] },
+                { model: Comment, as: 'comments', attributes: [ 'content' ],
+                    include: [
+                        { model: User, as: 'author', attributes: [ 'id', 'username' ] }
+                    ]
                 }
+
             ]
         });
 
