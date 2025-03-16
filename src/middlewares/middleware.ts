@@ -27,13 +27,13 @@ const unknownEndpoint = (_req:Request, res: Response) => {
 const errorHandler = (error: Error, _req: Request, res: Response, next: NextFunction): void => {
     if(error instanceof ValidationError){
         logger.error(error.name + ':', error.message);
-        res.status(400).json({ message: 'Validation error', error: error.errors[0].message }); // Como es validación entonces si se le puede enviar el mensaje al usuario
+        res.status(400).json({ message: `Validation error: ${error.errors[0].message}` }); // Como es validación entonces si se le puede enviar el mensaje al usuario
         // Detiene la ejecución aquí para que no vuelva a imprimir el error en la consola
         return;
     }
     else if(error instanceof CustomValidationError){
         logger.error(error.name + ':', error.message);
-        res.status(error.statusCode).json({ message: 'Validation error', error:error.message });
+        res.status(error.statusCode).json({ message: `Validation error: ${error.message}` });
         return;
     }
     else if(error instanceof CustomSecretValidationError){
@@ -48,7 +48,7 @@ const errorHandler = (error: Error, _req: Request, res: Response, next: NextFunc
     // Pasar el error al siguiente middleware si no es de validación
 };
 
-const tokenExtractor = (req: Request, _res: Response, next: NextFunction) => {
+const tokenExtractor = (req: CustomTokenRequest, _res: Response, next: NextFunction) => {
     try {
     // Se obtiene el encabezado authorization de la solicitud
         const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -56,7 +56,7 @@ const tokenExtractor = (req: Request, _res: Response, next: NextFunction) => {
             throw new CustomValidationError('No token provided', 401);
         }
         const decoded = jwt.verify(token, config.secret);
-        (req as CustomTokenRequest).decodedToken = decoded;
+        req.decodedToken = decoded;
 
         next();
     }catch(error){

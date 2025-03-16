@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 import bcrypt from 'bcrypt';
 
-import { CustomRequest, UserCreationAttributes } from '../types/types';
+import { CustomRequest, CustomTokenRequest, UserCreationAttributes } from '../types/types';
 
 import { User } from '../models/index';
 import { CustomValidationError } from '../utils/errorFactory';
@@ -32,6 +32,53 @@ export const createUser = async (req: CustomRequest<UserCreationAttributes>, res
         } else {
             throw new CustomValidationError('The password must be at least 3 characters long.', 400);
         }
+    } catch (error){
+        next(error); // Pasa el error al middleware de manejo de errores
+    }
+};
+
+export const getAllUsers = async (req: CustomTokenRequest, res: Response, next: NextFunction) => {
+    try {
+        if (!req.decodedToken) {
+            throw new CustomValidationError('Unauthorized: Invalid token', 401);
+        }
+
+        const users = await User.findAll({
+            attributes: [ 'id', 'username', 'name', 'visible' ]
+        });
+        res.status(200).json(users);
+    } catch (error){
+        next(error); // Pasa el error al middleware de manejo de errores
+    }
+};
+
+// pide token en otro lado, no me acuerdo en donde
+export const getUserByUsername = async (req: CustomTokenRequest, res: Response, next: NextFunction) => {
+    try {
+        if (!req.decodedToken) {
+            throw new CustomValidationError('Unauthorized: Invalid token', 401);
+        }
+
+        const { username } = req.params;
+
+        if(!username){
+            throw new CustomValidationError('username is missing', 400);
+        }
+
+        if (typeof username !== 'string') {
+            throw new CustomValidationError('Invalid username format',400);
+        }
+
+        const user = await User.findOne({
+            where: { username: username },
+            attributes: [ 'id', 'username', 'name', 'visible' ]
+        });
+
+        if(!user){
+            throw new CustomValidationError('username does not exist', 400);
+        }
+
+        res.status(200).json(user);
     } catch (error){
         next(error); // Pasa el error al middleware de manejo de errores
     }

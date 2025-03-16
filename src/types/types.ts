@@ -105,5 +105,5 @@ export interface CustomRequest<T> extends Request {
 // Tipo para Request de token
 
 export interface CustomTokenRequest extends Request{
-    decodedToken: string | JwtPayload;
+    decodedToken?: string | JwtPayload;
 };

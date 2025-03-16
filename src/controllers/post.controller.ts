@@ -1,8 +1,8 @@
 import { NextFunction, Response } from 'express';
 
-import { CustomRequest, PostAttributes, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
-import { Comment, Post, PostMedia, User } from '../models/index';
-import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
+import { CustomRequest, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
+import { Post, PostMedia, User } from '../models/index';
+import { CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
 import { sequelize } from '../config/database';
 
@@ -13,7 +13,7 @@ export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: 
         const { description, uploadedFiles } = req.body;
 
         if (!req.decodedToken) {
-            throw new CustomSecretValidationError('Unauthorized: Decoded Token not found', 401);
+            throw new CustomValidationError('Unauthorized: Invalid token', 401);
         }
         if(uploadedFiles.length===0){
             throw new CustomValidationError('No files uploaded', 400);
@@ -46,7 +46,7 @@ export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: 
 export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttributes>, res: Response, next: NextFunction) => {
     try {
         if(!req.decodedToken){
-            throw new CustomValidationError('Unauthorized: Token not found',401);
+            throw new CustomValidationError('Unauthorized: Invalid token',401);
         }
 
         const posts: PostWithMediaAttributes[] = await Post.findAll({
@@ -60,15 +60,17 @@ export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttribut
                         WHERE likes."postId" = "Post"."id"
                     )`), 'likesCount'
                 ],
+                [
+                    sequelize.literal(`(
+                        SELECT CAST(COUNT(*) AS INTEGER)
+                        FROM "Comments" AS comments
+                        WHERE comments."postId" = "Post"."id"
+                    )`), 'commentsCount'
+                ],
             ],
             include: [
                 { model: User, as: 'author', where: { visible: true }, attributes: [ 'id','username' ] },// Autor del post y solo trae los post de usuarios visibles
                 { model: PostMedia, as: 'media', attributes:[ 'id', 'mediaUrl', 'mediaType' ] },
-                { model: Comment, as: 'comments', attributes: [ 'content' ],
-                    include: [
-                        { model: User, as: 'author', attributes: [ 'id', 'username' ] }// Autor del comentario
-                    ]
-                },
             ]
         });
 
@@ -89,7 +91,7 @@ export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttribut
 export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationAttributes>, res: Response, next: NextFunction) => {
     try {
         if(!req.decodedToken){
-            throw new CustomValidationError('Unauthorized: Token not found',401);
+            throw new CustomValidationError('Unauthorized: Invalid token',401);
         }
         const { id } = req.decodedToken;
         const posts: PostWithMediaAttributes[] = await Post.findAll({
@@ -103,16 +105,18 @@ export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationA
                         WHERE likes."postId" = "Post"."id"
                     )`), 'likesCount'
                 ],
+                [
+                    sequelize.literal(`(
+                        SELECT CAST(COUNT(*) AS INTEGER)
+                        FROM "Comments" AS comments
+                        WHERE comments."postId" = "Post"."id"
+                    )`), 'commentsCount'
+                ],
             ],
             where: { userId: id }, // Usuario loggeado: id del usuario que viene en el token
             include: [
-                { model: PostMedia, as: 'media', attributes: [ 'id', 'mediaUrl', 'mediaType' ] },
                 { model: User, as: 'author', attributes: [ 'id', 'username' ] }, // Autor del post
-                { model: Comment, as: 'comments', attributes: [ 'content' ],
-                    include: [
-                        { model: User, as: 'author', attributes: [ 'id', 'username' ] } // author del comentario
-                    ]
-                },
+                { model: PostMedia, as: 'media', attributes: [ 'id', 'mediaUrl', 'mediaType' ] },
             ]
         });
 
@@ -130,25 +134,32 @@ export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationA
     }
 };
 
-interface PostFromOtherVisibleUser extends PostAttributes {
+interface PostFromOtherVisibleUser {
     username: string;
 }
-export const getAllVisblePostsFromUser = async (req: CustomRequest<PostFromOtherVisibleUser>, res: Response, next: NextFunction) => {
+
+export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOtherVisibleUser>, res: Response, next: NextFunction) => {
     try {
         if(!req.decodedToken){
-            throw new CustomValidationError('Unauthorized: Token not found',401);
+            throw new CustomValidationError('Unauthorized: Invalid token',401);
         }
-        const username =  req.body.username;
+        const { username } = req.params;
+
         if(!username){
-            throw new CustomValidationError('username is missing');
+            throw new CustomValidationError('username is missing', 400);
         }
-        const user = await User.findOne({ where: { username: username } });
+
+        if (typeof username !== 'string') {
+            throw new CustomValidationError('Invalid username format',400);
+        }
+
+        const user = await User.findOne({ where: { username: username } }); // hay que validar que el username que se recibe en la query es un string o sino da overload
 
         if(!user){
-            throw new CustomValidationError('username does not exist');
+            throw new CustomValidationError('username does not exist', 400);
         }
         if(!user.visible){
-            throw new CustomValidationError('username is not public');
+            throw new CustomValidationError('username is not public', 400);
         }
         const posts: PostWithMediaAttributes[] = await Post.findAll({
             attributes: [
@@ -161,17 +172,18 @@ export const getAllVisblePostsFromUser = async (req: CustomRequest<PostFromOther
                         WHERE likes."postId" = "Post"."id"
                     )`), 'likesCount'
                 ],
+                [
+                    sequelize.literal(`(
+                        SELECT CAST(COUNT(*) AS INTEGER)
+                        FROM "Comments" AS comments
+                        WHERE comments."postId" = "Post"."id"
+                    )`), 'commentsCount'
+                ],
             ],
             include: [
-                { model: PostMedia, as: 'media' },
                 // Agrego el visible por si algo
-                { model: User, as: 'author', where: { username: user.username, visible: true }, attributes: [ 'id', 'username', 'name' ] },
-                { model: Comment, as: 'comments', attributes: [ 'content' ],
-                    include: [
-                        { model: User, as: 'author', attributes: [ 'id', 'username' ] }
-                    ]
-                }
-
+                { model: User, as: 'author', where: { username: user.username, visible: true }, attributes: [ 'id', 'username' ] },
+                { model: PostMedia, as: 'media' },
             ]
         });
 
