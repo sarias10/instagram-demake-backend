@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPost, getAllPostsFromLoggedUser, getAllVisiblePosts, getAllVisiblePostsFromUser } from '../controllers/post.controller';
+import { createPost, getAllPostsFromLoggedUser, getAllVisiblePosts, getAllVisiblePostsFromUser, getVisiblePostFromOtherUserById } from '../controllers/post.controller';
 import { uploadMiddleware, uploadToS3 } from '../middlewares/upload';
 import { createComment } from '../controllers/comment.controller';
 import { createOrDeleteLike } from '../controllers/like.controller';
@@ -9,8 +9,10 @@ const router = Router();
 
 // Todas estas rutas estan protegidas, por tanto necesitan un token de acceso
 router.get('/get-all-posts-from-logged-user', getAllPostsFromLoggedUser);//
+
 router.get('/get-all-visible-posts', getAllVisiblePosts);
 router.get('/get-all-visible-posts-from-user/:username', getAllVisiblePostsFromUser);
+router.get('/get-visible-post-from-other-user/:id', getVisiblePostFromOtherUserById);
 
 router.get('/get-all-users', getAllUsers);
 router.get('/get-user/:username', getUserByUsername);
