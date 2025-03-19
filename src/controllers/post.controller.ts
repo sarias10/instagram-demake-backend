@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 
-import { CustomRequest, CustomTokenRequest, PostAttributes, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
+import { CustomRequest, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
 import { Post, PostMedia, User } from '../models/index';
 import { CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
@@ -206,86 +206,6 @@ export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOthe
         });
         res.status(200).json(posts);
     } catch (error) {
-        next(error);
-    }
-};
-
-// const getPostFromLoggedUserById = () => {
-
-// };
-
-interface Author {
-    id: number,
-    username: string
-}
-interface Media {
-    id: number,
-    mediaUrl: string,
-    mediaType: string
-}
-interface PostById extends Omit<PostAttributes, 'userId' | 'createdAt' | 'updatedAt'> {
-    author: Author
-    likesCount: number,
-    media: Media[]
-}
-
-export const getVisiblePostFromOtherUserById = async (req: CustomTokenRequest, res: Response, next: NextFunction) => {
-    try{
-        if(!req.decodedToken){
-            throw new CustomValidationError('Unauthorized: Invalid token',401);
-        }
-        const { id } = req.params;
-
-        if(!id) {
-            throw new CustomValidationError('id is missing', 400);
-        }
-
-        if(typeof id !== 'string') {
-            throw new CustomValidationError('Invalid id format', 400);
-        }
-
-        const post = await Post.findOne({
-            where: { id: id },
-            attributes: [
-                'id',
-                'description',
-                [
-                    sequelize.literal(`(
-                        SELECT CAST(COUNT(*) AS INTEGER)
-                        FROM "Likes" AS likes
-                        WHERE likes."postId" = "Post"."id"
-                    )`), 'likesCount'
-                ],
-            ],
-            include: [
-                {
-                    model: User,
-                    as: 'author',
-                    where: { visible: true },
-                    attributes: [ 'id', 'username' ]
-                },
-                {
-                    model: PostMedia,
-                    as: 'media',
-                    attributes: [ 'id', 'mediaUrl', 'mediaType' ],
-                }
-            ]
-        }); // hay que validar que el id que se recibe como param es un string o sino da overload al llamar a la función en el router
-
-        if(!post){
-            throw new CustomValidationError('post does not exist');
-        }
-
-        const postData = post as unknown as PostById;
-
-        if(Array.isArray(postData.media)) {
-            postData.media.forEach(media => {
-                media.mediaUrl = `https://${awsCloudformationDomain}/${media.mediaUrl}`;
-            });
-        };
-
-        res.status(200).json(postData);
-    } catch(error) {
         next(error);
     }
 };
