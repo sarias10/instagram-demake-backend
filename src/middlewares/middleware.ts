@@ -16,6 +16,7 @@ const requestLogger = (req: Request, _res: Response, next: NextFunction) => {
     // El 'null' indica que no se aplicará ninguna transformación a las claves y valores.
     // El '2' añade una indentación de 2 espacios, haciendo el JSON más legible.
     logger.info('Body: ',JSON.stringify(req.body, null,2));
+    logger.info(new Date().toLocaleString('es-CO'));
     logger.info('---');
     next();
 };

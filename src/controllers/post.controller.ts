@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express';
 
 import { CustomRequest, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
 import { Post, PostMedia, User } from '../models/index';
-import { CustomValidationError } from '../utils/errorFactory';
+import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
 import { sequelize } from '../config/database';
 
@@ -37,7 +37,33 @@ export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: 
 
             await PostMedia.bulkCreate(postMediaData);
         }
-        res.status(201).json(newPost);
+
+        // Traer el post con el username del autor
+        const completePost: PostWithMediaAttributes | null = await Post.findOne({
+            where: { id: newPost.id },
+            include: [
+                {
+                    model: User,
+                    as: 'author',
+                    attributes: [ 'id', 'username' ] },
+                {
+                    model: PostMedia,
+                    as: 'media',
+                    attributes: [ 'id', 'mediaUrl', 'mediaType' ],
+                }
+            ]
+        });
+
+        if (!completePost){
+            throw new CustomSecretValidationError('complete post is null');
+        }
+        if (Array.isArray(completePost.media)) {
+            completePost.media.forEach(media => {
+                media.mediaUrl = `https://${awsCloudformationDomain}/${media.mediaUrl}`;
+            });
+        }
+
+        res.status(201).json(completePost);
     } catch (error) {
         next(error);
     }
@@ -80,6 +106,9 @@ export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttribut
                     as: 'media',
                     attributes:[ 'id', 'mediaUrl', 'mediaType' ]
                 },
+            ],
+            order: [
+                [ 'id', 'desc' ]
             ]
         });
 
@@ -126,6 +155,9 @@ export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationA
             include: [
                 { model: User, as: 'author', attributes: [ 'id', 'username' ] }, // Autor del post
                 { model: PostMedia, as: 'media', attributes: [ 'id', 'mediaUrl', 'mediaType' ] },
+            ],
+            order: [
+                [ 'id', 'desc' ]
             ]
         });
 
@@ -193,6 +225,9 @@ export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOthe
                 // Agrego el visible por si algo
                 { model: User, as: 'author', where: { username: user.username, visible: true }, attributes: [ 'id', 'username' ] },
                 { model: PostMedia, as: 'media' },
+            ],
+            order: [
+                [ 'id', 'desc' ]
             ]
         });
 
