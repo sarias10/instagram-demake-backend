@@ -1,12 +1,16 @@
 import { NextFunction, Response } from 'express';
 
-import { CustomRequest, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
+import { CustomRequest, PostAttributes, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
 import { Post, PostMedia, User } from '../models/index';
 import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
 import { sequelize } from '../config/database';
+import s3 from '../utils/s3';
+import { DeleteObjectsCommand } from '@aws-sdk/client-s3';
 
 const awsCloudformationDomain = config.aws.awsCloudformationDomain;
+
+const bucketName = config.aws.awsS3BucketPostMedia;
 
 export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: Response, next: NextFunction) => {
     try {
@@ -241,6 +245,61 @@ export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOthe
         });
         res.status(200).json(posts);
     } catch (error) {
+        next(error);
+    }
+};
+
+export const deletePost = async (req: CustomRequest<PostAttributes>, res: Response, next: NextFunction) => {
+    try {
+        if(!req.decodedToken){ // Hay que poner esto porque
+            throw new CustomValidationError('Unauthorized: Invalid token',401);
+        }
+        const { postId } = req.params;
+
+        const { id } = req.decodedToken; // id del usuario dueño del token
+
+        const post = await Post.findOne({
+            where: { id: postId },
+            include: [
+                { model:PostMedia, as: 'media', attributes: [ 'mediaUrl' ] }
+            ]
+        });
+
+        // Valida que el post existe
+        if(!post){
+            throw new CustomValidationError('post does not exist', 400);
+        }
+
+        // Valida que el post le pertenece al usuario loggeado
+        if(post.userId !== id){
+            throw new CustomValidationError('post does not belong to the user logged', 400);
+        }
+
+        const postCopy: PostWithMediaAttributes = post;
+
+        const mediaUrlArray = postCopy.media?.map(media =>  {
+            return { Key: media.mediaUrl };
+        });
+
+        if (!Array.isArray(mediaUrlArray)){
+            throw new CustomValidationError('does not array');
+        }
+
+        const command = new DeleteObjectsCommand({
+            Bucket: bucketName,
+            Delete: {
+                Objects: mediaUrlArray,
+            }
+        });
+
+        // Envia el comando para eliminar del s3
+        await s3.send(command);
+
+        // Elimina la información del post de la base de datos postgresql
+        await post.destroy();
+
+        res.status(204).end(); // Hay que colocar el .end() o sino se queda cargando en el postman porque no le llega un cuerpo en la respuesta
+    }catch (error) {
         next(error);
     }
 };

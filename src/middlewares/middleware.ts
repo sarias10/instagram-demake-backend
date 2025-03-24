@@ -7,8 +7,6 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
 import { CustomTokenRequest } from '../types/types';
 
-//import { CustomTokenRequest } from '../types/types';
-
 const requestLogger = (req: Request, _res: Response, next: NextFunction) => {
     logger.info('Method: ', req.method);
     logger.info('Path: ', req.path);
@@ -57,6 +55,7 @@ const tokenExtractor = (req: CustomTokenRequest, _res: Response, next: NextFunct
             throw new CustomValidationError('No token provided', 401);
         }
         const decoded = jwt.verify(token, config.secret);
+
         req.decodedToken = decoded;
 
         next();
