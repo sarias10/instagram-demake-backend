@@ -45,7 +45,7 @@ export const login = async (req:CustomRequest<UserCreationAttributes>, res: Resp
         );
         // Nota: si pongo esto antes que otro res.status ... entonces da este error Error: Cannot set headers after they are sent to the client
         // Finalmente se responde la solicitud
-        res.status(200).send({ token, username: user.username, name: user.name });
+        res.status(200).send({ token, id: user.id, username: user.username, name: user.name });
     } catch (error){
         next(error);
     }
