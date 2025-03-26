@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 
 import { CustomRequest, LikeCreationAttributes } from '../types/types';
-import { Like } from '../models/index';
+import { Like, Post } from '../models/index';
 import logger from '../utils/logger';
 import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
 
@@ -12,6 +12,10 @@ export const createOrDeleteLike = async (req: CustomRequest<LikeCreationAttribut
         const { postId, commentId } = req.body;
         if(!req.decodedToken){
             throw new CustomSecretValidationError('Unauthorized: Decoded Token not found', 401);
+        }
+        const post = await Post.findOne({ where: { id: postId } });
+        if(!post){
+            throw new CustomValidationError('post does not exist', 404);
         }
         const { id } = req.decodedToken;
         if(!postId && !commentId){ // Si faltan los dos
