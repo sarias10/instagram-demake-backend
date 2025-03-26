@@ -2,13 +2,11 @@ import { NextFunction, Response } from 'express';
 
 import { CustomRequest, PostAttributes, PostCreationAttributes, PostWithMediaAttributes, UploadToS3Attributes } from '../types/types';
 import { Post, PostMedia, User } from '../models/index';
-import { CustomSecretValidationError, CustomValidationError } from '../utils/errorFactory';
+import { CustomValidationError } from '../utils/errorFactory';
 import { config } from '../config/env';
-import { sequelize } from '../config/database';
 import s3 from '../utils/s3';
 import { DeleteObjectsCommand } from '@aws-sdk/client-s3';
-
-const awsCloudformationDomain = config.aws.awsCloudformationDomain;
+import queries from '../utils/queries';
 
 const bucketName = config.aws.awsS3BucketPostMedia;
 
@@ -43,31 +41,10 @@ export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: 
         }
 
         // Traer el post con el username del autor
-        const completePost: PostWithMediaAttributes | null = await Post.findOne({
-            where: { id: newPost.id },
-            include: [
-                {
-                    model: User,
-                    as: 'author',
-                    attributes: [ 'id', 'username' ] },
-                {
-                    model: PostMedia,
-                    as: 'media',
-                    attributes: [ 'id', 'mediaUrl', 'mediaType' ],
-                }
-            ]
-        });
+        const post = await queries.getPostById(id,newPost.id);
 
-        if (!completePost){
-            throw new CustomSecretValidationError('complete post is null');
-        }
-        if (Array.isArray(completePost.media)) {
-            completePost.media.forEach(media => {
-                media.mediaUrl = `https://${awsCloudformationDomain}/${media.mediaUrl}`;
-            });
-        }
-
-        res.status(201).json(completePost);
+        console.log(post);
+        res.status(201).json(post);
     } catch (error) {
         next(error);
     }
@@ -79,51 +56,12 @@ export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttribut
             throw new CustomValidationError('Unauthorized: Invalid token',401);
         }
 
-        const posts: PostWithMediaAttributes[] = await Post.findAll({
-            attributes: [
-                'id',
-                'description',
-                [
-                    sequelize.literal(`(
-                        SELECT CAST(COUNT(*) AS INTEGER)
-                        FROM "Likes" AS likes
-                        WHERE likes."postId" = "Post"."id"
-                    )`), 'likesCount'
-                ],
-                [
-                    sequelize.literal(`(
-                        SELECT CAST(COUNT(*) AS INTEGER)
-                        FROM "Comments" AS comments
-                        WHERE comments."postId" = "Post"."id"
-                    )`), 'commentsCount'
-                ],
-            ],
-            include: [
-                {
-                    model: User,
-                    as: 'author',
-                    where: { visible: true },
-                    attributes: [ 'id','username' ]
-                },// Autor del post y solo trae los post de usuarios visibles
-                {
-                    model: PostMedia,
-                    as: 'media',
-                    attributes:[ 'id', 'mediaUrl', 'mediaType' ]
-                },
-            ],
-            order: [
-                [ 'id', 'desc' ]
-            ]
-        });
+        // decodedToken tiene username y id pero solo uso id
+        // id del usuario loggeado
+        const { id } = req.decodedToken;
 
-        // Generar URLs usando CloudFront
-        posts.forEach(post => {
-            if (Array.isArray(post.media)) {
-                post.media.forEach(media => {
-                    media.mediaUrl = `https://${awsCloudformationDomain}/${media.mediaUrl}`;
-                });
-            }
-        });
+        const posts = await queries.getVisiblePosts(id);
+
         res.status(200).json(posts);
     } catch (error) {
         next(error);
@@ -136,43 +74,7 @@ export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationA
             throw new CustomValidationError('Unauthorized: Invalid token',401);
         }
         const { id } = req.decodedToken;
-        const posts: PostWithMediaAttributes[] = await Post.findAll({
-            attributes: [
-                'id',
-                'description',
-                [
-                    sequelize.literal(`(
-                        SELECT CAST(COUNT(*) AS INTEGER)
-                        FROM "Likes" AS likes
-                        WHERE likes."postId" = "Post"."id"
-                    )`), 'likesCount'
-                ],
-                [
-                    sequelize.literal(`(
-                        SELECT CAST(COUNT(*) AS INTEGER)
-                        FROM "Comments" AS comments
-                        WHERE comments."postId" = "Post"."id"
-                    )`), 'commentsCount'
-                ],
-            ],
-            where: { userId: id }, // Usuario loggeado: id del usuario que viene en el token
-            include: [
-                { model: User, as: 'author', attributes: [ 'id', 'username' ] }, // Autor del post
-                { model: PostMedia, as: 'media', attributes: [ 'id', 'mediaUrl', 'mediaType' ] },
-            ],
-            order: [
-                [ 'id', 'desc' ]
-            ]
-        });
-
-        // Generar URLs usando CloudFront
-        posts.forEach(post => {
-            if (Array.isArray(post.media)) {
-                post.media.forEach(media => {
-                    media.mediaUrl = `https://${awsCloudformationDomain}/${media.mediaUrl}`;
-                });
-            }
-        });
+        const posts = await queries.getPostsFromLoggedUser(id);
         res.status(200).json(posts);
     } catch (error) {
         next(error);
@@ -188,6 +90,9 @@ export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOthe
         if(!req.decodedToken){
             throw new CustomValidationError('Unauthorized: Invalid token',401);
         }
+
+        const { id } = req.decodedToken;
+        // username del usuario del que se quiere saber los posts visibles
         const { username } = req.params;
 
         if(!username){
@@ -203,46 +108,12 @@ export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOthe
         if(!user){
             throw new CustomValidationError('username does not exist', 404);
         }
+
         if(!user.visible){
             throw new CustomValidationError('username is not public', 400);
         }
-        const posts: PostWithMediaAttributes[] = await Post.findAll({
-            attributes: [
-                'id',
-                'description',
-                [
-                    sequelize.literal(`(
-                        SELECT CAST(COUNT(*) AS INTEGER)
-                        FROM "Likes" AS likes
-                        WHERE likes."postId" = "Post"."id"
-                    )`), 'likesCount'
-                ],
-                [
-                    sequelize.literal(`(
-                        SELECT CAST(COUNT(*) AS INTEGER)
-                        FROM "Comments" AS comments
-                        WHERE comments."postId" = "Post"."id"
-                    )`), 'commentsCount'
-                ],
-            ],
-            include: [
-                // Agrego el visible por si algo
-                { model: User, as: 'author', where: { username: user.username, visible: true }, attributes: [ 'id', 'username' ] },
-                { model: PostMedia, as: 'media' },
-            ],
-            order: [
-                [ 'id', 'desc' ]
-            ]
-        });
 
-        // Generar URLs usando CloudFront
-        posts.forEach(post => {
-            if (Array.isArray(post.media)) {
-                post.media.forEach(media => {
-                    media.mediaUrl = `https://${awsCloudformationDomain}/${media.mediaUrl}`;
-                });
-            }
-        });
+        const posts = queries.getVisiblePostsFromUser(id, username);
         res.status(200).json(posts);
     } catch (error) {
         next(error);

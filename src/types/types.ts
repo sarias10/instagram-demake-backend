@@ -46,7 +46,15 @@ export interface PostAttributes {
     updatedAt?: Date; // Fecha de última actualización (opcional, tipo Date)
 }
 
+interface Author {
+    id: number,
+    username: string
+}
 export interface PostWithMediaAttributes extends PostAttributes {
+    likesCount?: number;
+    commentsCount?: number;
+    hasLiked?: boolean
+    author?: Author
     media?: PostMediaAttributes[];
 }
 
