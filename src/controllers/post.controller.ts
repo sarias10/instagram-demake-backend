@@ -60,6 +60,7 @@ export const getAllVisiblePosts = async (req: CustomRequest<PostCreationAttribut
         // id del usuario loggeado
         const { id } = req.decodedToken;
 
+        // Consulta los posts visibles
         const posts = await queries.getVisiblePosts(id);
 
         res.status(200).json(posts);
@@ -74,6 +75,8 @@ export const getAllPostsFromLoggedUser = async (req: CustomRequest<PostCreationA
             throw new CustomValidationError('Unauthorized: Invalid token',401);
         }
         const { id } = req.decodedToken;
+
+        // Consulta los posts del usuario loggeado
         const posts = await queries.getPostsFromLoggedUser(id);
         res.status(200).json(posts);
     } catch (error) {
@@ -113,6 +116,7 @@ export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOthe
             throw new CustomValidationError('username is not public', 400);
         }
 
+        // Consulta los posts visibles de otros usuarios
         const posts = queries.getVisiblePostsFromUser(id, username);
         res.status(200).json(posts);
     } catch (error) {
