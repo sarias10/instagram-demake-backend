@@ -208,9 +208,9 @@ const getVisiblePostsFromUser = async (loggedUserId: number, userIdParam: string
             ],
             [
                 sequelize.literal(`(
-                SELECT CASE 
-                    WHEN COUNT(*) > 0 THEN TRUE 
-                    ELSE FALSE 
+                SELECT CASE
+                    WHEN COUNT(*) > 0 THEN TRUE
+                    ELSE FALSE
                 END
                 FROM "Likes" AS likes
                 WHERE likes."postId" = "Post"."id"

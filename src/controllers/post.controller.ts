@@ -102,22 +102,22 @@ export const getAllVisiblePostsFromUser = async (req: CustomRequest<PostFromOthe
             throw new CustomValidationError('username is missing', 400);
         }
 
-        if (typeof username !== 'string') {
+        if (typeof username !== 'string') { // hay que validar que el username que se recibe en la query es un string o sino da overload
             throw new CustomValidationError('Invalid username format',400);
         }
 
-        const user = await User.findOne({ where: { username: username } }); // hay que validar que el username que se recibe en la query es un string o sino da overload
+        const user = await User.findOne({ where: { username: username } });
 
         if(!user){
-            throw new CustomValidationError('username does not exist', 404);
+            throw new CustomValidationError('username does not exist', 404); // Se verifica que el usuario exista
         }
 
         if(!user.visible){
-            throw new CustomValidationError('username is not public', 400);
+            throw new CustomValidationError('username is not public', 400); // Se verifica que el usuario sea visible
         }
 
         // Consulta los posts visibles de otros usuarios
-        const posts = queries.getVisiblePostsFromUser(id, username);
+        const posts = await queries.getVisiblePostsFromUser(id, username);
         res.status(200).json(posts);
     } catch (error) {
         next(error);
