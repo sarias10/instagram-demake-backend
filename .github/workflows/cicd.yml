@@ -19,46 +19,56 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+          aws ecr get-login-password --region ${{ vars.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com
 
+      - name: Delete ECR image tagged with latest (if exists)
+        run: |
+          IMAGE_EXISTS=$(aws ecr list-images --repository-name ${{ vars.ECR_REPOSITORY }} --region ${{ vars.AWS_DEFAULT_REGION }} --query "imageIds[?imageTag=='${{ vars.IMAGE_TAG }}']" --output json)
+
+          if[ "$IMAGE_EXISTS" != "[]"]; then
+            echo "Deleting image tagged as ${{ vars.IMAGE_TAG}}..."
+            aws ecr batch-delete-image --repository-name ${{ vars.ECR_REPOSITORY }} --image-ids imageTag=${{ vars.IMAGE_TAG }} --region ${{ vars.AWS_DEFAULT_REGION }}
+          else
+            echo "No image with tag '${{ vars.IMAGE_TAG }}' found, skipping deletion."
+          fi
       - name: Build Docker Image
         run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }} .
+          docker tag ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }} 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
 
       - name: Push Docker Image to ECR
         run: |
-          docker push 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "Logging into ECR..."
-            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Deploy to EC2
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.EC2_HOST }}
+  #         username: ubuntu
+  #         key: ${{ secrets.EC2_SSH_KEY }}
+  #         script: |
+  #           echo "Logging into ECR..."
+  #           aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
             
-            echo "Stopping old container..."
-            docker stop mi-backend || true
-            docker rm mi-backend || true
+  #           echo "Stopping old container..."
+  #           docker stop mi-backend || true
+  #           docker rm mi-backend || true
             
-            echo "Pulling new image..."
-            docker pull 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
+  #           echo "Pulling new image..."
+  #           docker pull 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
 
-            echo "Creating .env.production file..."
-            echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
+  #           echo "Creating .env.production file..."
+  #           echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
 
-            echo "Running new container..."
-            docker run -d -p 3001:3001 --name mi-backend --env-file .env.production 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
+  #           echo "Running new container..."
+  #           docker run -d -p 3001:3001 --name mi-backend --env-file .env.production 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest

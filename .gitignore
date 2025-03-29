@@ -1,3 +1,5 @@
 node_modules
 .env.*
 testTypes.ts
+testConfig.ts
+build

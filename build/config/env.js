@@ -32,21 +32,53 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = void 0;
-const dotenv = __importStar(require("dotenv"));
-const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development";
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-dotenv.config({ path: envFile });
-exports.config = {
-    port: process.env.PORT || 3000,
-    db: {
-        host: process.env.DB_HOST,
-        port: Number(process.env.DB_PORT),
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        name: process.env.DB_NAME,
-    },
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-console.log(`🛠️ Loaded environment variables from ${envFile}`);
-console.log(exports.config);
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.config = exports.loadConfig = void 0;
+const dotenv = __importStar(require("dotenv"));
+const secrets_1 = require("../utils/secrets");
+// Determinar si estamos en producción
+const isProduction = process.env.NODE_ENV === 'production';
+// Cargar variables de entorno en desarrollo
+if (!isProduction) {
+    dotenv.config({ path: '.env.development' });
+    console.log('🛠️ Loaded environment variables from .env.development');
+}
+// Configuración inicial vacía
+let config;
+const loadConfig = () => __awaiter(void 0, void 0, void 0, function* () {
+    let secrets = {};
+    if (isProduction) {
+        secrets = yield (0, secrets_1.getSecret)('sm-aws-backend-dev', 'us-east-2');
+        Object.assign(process.env, secrets);
+        console.log('🔐 AWS Secrets loaded successfully');
+    }
+    exports.config = config = {
+        port: process.env.PORT || 3000,
+        secret: process.env.JWT_SECRET,
+        db: {
+            host: process.env.DB_HOST,
+            port: Number(process.env.DB_PORT),
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            name: process.env.DB_NAME,
+        },
+        aws: {
+            region: process.env.AWS_DEFAULT_REGION,
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            awsS3BucketPostMedia: process.env.AWS_S3_BUCKET_POST_MEDIA,
+            awsCloudformationDomain: process.env.AWS_CLOUDFORMATION_DOMAIN,
+        },
+        environment: process.env.ENVIRONMENT || 'development',
+    };
+});
+exports.loadConfig = loadConfig;

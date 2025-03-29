@@ -15,7 +15,7 @@ const env_1 = require("./env");
 exports.sequelize = new sequelize_1.Sequelize(env_1.config.db.name, env_1.config.db.user, env_1.config.db.password, {
     host: env_1.config.db.host,
     port: env_1.config.db.port,
-    dialect: "postgres",
+    dialect: 'postgres',
     dialectOptions: {
         ssl: {
             require: true,
@@ -27,11 +27,10 @@ exports.sequelize = new sequelize_1.Sequelize(env_1.config.db.name, env_1.config
 const checkDatabaseConnection = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield exports.sequelize.authenticate();
-        console.log("✅ Database connected successfully!");
+        console.log('✅ Database connected successfully!');
     }
     catch (error) {
-        console.error("❌ Unable to connect to the database:", error);
-        process.exit(1);
+        console.error('❌ Unable to connect to the database:', error);
     }
 });
 exports.checkDatabaseConnection = checkDatabaseConnection;

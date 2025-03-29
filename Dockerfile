@@ -4,20 +4,17 @@ FROM node:16
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy the rest of the application code
+COPY . .
 
 # Install dependencies
 RUN npm install
-
-# Copy the rest of the application code
-COPY . .
 
 # Compile TypeScript to JavaScript
 RUN npm run build
 
 # Expose the application port
-EXPOSE 3001
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]

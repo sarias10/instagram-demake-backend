@@ -9,15 +9,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.healthCheck = void 0;
+exports.healthCheckService = exports.healthCheckDatabase = void 0;
 const database_1 = require("../config/database");
-const healthCheck = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const healthCheckDatabase = (_req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield database_1.sequelize.authenticate();
-        res.json({ message: "✅ Database is connected" });
+        res.json({ message: '✅ Database is connected' });
     }
     catch (error) {
-        res.status(500).json({ message: "❌ Database is NOT connected", error });
+        next(error);
     }
 });
-exports.healthCheck = healthCheck;
+exports.healthCheckDatabase = healthCheckDatabase;
+const healthCheckService = (_req, res, next) => {
+    try {
+        res.json({ message: '✅ Service is connected' });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.healthCheckService = healthCheckService;

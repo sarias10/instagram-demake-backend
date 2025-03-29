@@ -4,12 +4,6 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 
 dotenv.config({ path: envFile });
 
-// Cargar el archivo .env solo en desarrollo
-// const envFile = ".env.development";
-// if (process.env.NODE_ENV === "development") {
-//   dotenv.config({ path: envFile });
-// }
-
 export const config = {
     port: process.env.PORT || 3000,
     secret: process.env.JWT_SECRET as string, // jwt.sign() espera que el segundo argumento sea una cadena (string) que representa la clave secreta o la clave privada

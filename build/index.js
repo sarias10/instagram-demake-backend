@@ -17,9 +17,16 @@ const app_1 = __importDefault(require("./app"));
 const env_1 = require("./config/env");
 const database_1 = require("./config/database");
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, database_1.checkDatabaseConnection)();
-    app_1.default.listen(env_1.config.port, () => {
-        console.log(`🚀 Server running on http://localhost:${env_1.config.port}`);
-    });
+    try {
+        yield (0, env_1.loadConfig)();
+        yield (0, database_1.checkDatabaseConnection)();
+        console.log(`Environment: ${env_1.config.environment}`);
+        app_1.default.listen(env_1.config.port, () => {
+            console.log(`🚀 Server running on http://localhost:${env_1.config.port}`);
+        });
+    }
+    catch (error) {
+        console.log('Error initializing server:', error);
+    }
 });
 void startServer();
