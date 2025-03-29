@@ -55,3 +55,21 @@ jobs:
           script: |
             echo "Logging into ECR..."
             aws ecr get-login-password --region ${{ vars.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com
+            
+            echo "Fetching secrets from AWS Secrets Manager..."
+            SECRETS=$(aws secretsmanager get-secret-value --secret-id sm-aws-backend-dev --query SecretString --output text | jq -r 'to_entries|map("--env \(.key)=\(.value)")|join(" ")')
+
+            echo "Stopping old container..."
+            docker stop mi-backend-dev || true
+            
+            echo "Deleting old container..."
+            docker rm mi-backend-dev || true
+
+            echo "Deleting old image..."
+            docker rmi 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }} || true
+
+            echo "Pulling new image..."
+            docker pull 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
+
+            echo "Running new container..."
+            docker run -d -p 3001:3001 --name mi-backend-dev $SECRETS 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
