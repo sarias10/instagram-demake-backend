@@ -56,8 +56,12 @@ jobs:
 
       - name: Get runner ip address
         id: ip
-        uses: haythem/public-ip@v1.2
+        uses: haythem/public-ip@v1.3
       
+      - name: Print Public IP
+        run: |
+            echo ${{ steps.ip.outputs.ipv4 }}
+            
       - name: whitelist runner ip address
         run: |
           aws ec2 authorize-security-group-ingress \
