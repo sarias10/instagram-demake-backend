@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source
+      - name: Checkout Source # Clona el repositorio actual en el runner
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
@@ -26,14 +26,9 @@ jobs:
 
       - name: Delete ECR image tagged with latest (if exists)
         run: |
-          IMAGE_EXISTS=$(aws ecr list-images --repository-name ${{ vars.ECR_REPOSITORY }} --region ${{ vars.AWS_DEFAULT_REGION }} --query "imageIds[?imageTag=='${{ vars.IMAGE_TAG }}']" --output json)
+          echo "Deleting image tagged as ${{ vars.IMAGE_TAG }}..."
+          aws ecr batch-delete-image --repository-name ${{ vars.ECR_REPOSITORY }} --image-ids imageTag=${{ vars.IMAGE_TAG }} --region ${{ vars.AWS_DEFAULT_REGION }} || true
 
-          if [ "$IMAGE_EXISTS" != "[]" ]; then
-            echo "Deleting image tagged as ${{ vars.IMAGE_TAG}}..."
-            aws ecr batch-delete-image --repository-name ${{ vars.ECR_REPOSITORY }} --image-ids imageTag=${{ vars.IMAGE_TAG }} --region ${{ vars.AWS_DEFAULT_REGION }}
-          else
-            echo "No image with tag '${{ vars.IMAGE_TAG }}' found, skipping deletion."
-          fi
       - name: Build Docker Image
         run: |
           docker build -t ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }} .
@@ -54,7 +49,7 @@ jobs:
           aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_DEFAULT_REGION }}
 
-      - name: Get runner ip address
+      - name: Get runner ip address # Saber la dirección ip del runner
         id: ip
         uses: haythem/public-ip@v1.3
       
