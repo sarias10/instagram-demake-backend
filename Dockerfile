@@ -3,7 +3,7 @@
 # docker run -d -p 3001:3001 --env PORT=3001 --name mi-backend-container mi-backend-local:latest
 
 # Use the official Node.js image as the base image
-FROM node:16
+FROM node:18
 
 # Set the working directory
 WORKDIR /app
