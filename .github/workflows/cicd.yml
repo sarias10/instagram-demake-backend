@@ -31,7 +31,7 @@ jobs:
         run: |
           IMAGE_EXISTS=$(aws ecr list-images --repository-name ${{ vars.ECR_REPOSITORY }} --region ${{ vars.AWS_DEFAULT_REGION }} --query "imageIds[?imageTag=='${{ vars.IMAGE_TAG }}']" --output json)
 
-          if[ "$IMAGE_EXISTS" != "[]"]; then
+          if [ "$IMAGE_EXISTS" != "[]"]; then
             echo "Deleting image tagged as ${{ vars.IMAGE_TAG}}..."
             aws ecr batch-delete-image --repository-name ${{ vars.ECR_REPOSITORY }} --image-ids imageTag=${{ vars.IMAGE_TAG }} --region ${{ vars.AWS_DEFAULT_REGION }}
           else
