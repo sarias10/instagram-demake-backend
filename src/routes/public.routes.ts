@@ -5,7 +5,7 @@ import { createUser } from '../controllers/user.controller';
 const router = Router();
 
 router.get('/health-check', (_req, res) => {
-    res.send('Sergio les dice: HOLA MUNDO! 🌎 😂');
+    res.send('hola mundo');
 });
 
 router.post('/login', login);
