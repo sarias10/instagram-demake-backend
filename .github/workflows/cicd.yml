@@ -55,7 +55,7 @@ jobs:
         with:
           host: ${{ vars.EC2_HOST }}
           username: ubuntu
-          key: ${{ vars.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "Logging into ECR..."
             aws ecr get-login-password --region ${{ vars.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com
