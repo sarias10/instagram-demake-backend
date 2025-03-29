@@ -57,7 +57,7 @@ jobs:
             aws ecr get-login-password --region ${{ vars.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com
             
             echo "Fetching secrets from AWS Secrets Manager..."
-            SECRETS=$(aws secretsmanager get-secret-value --secret-id sm-aws-backend-dev --query SecretString --output text | jq -r 'to_entries|map("--env \(.key)=\(.value)")|join(" ")')
+            SECRETS=$(aws secretsmanager get-secret-value --secret-id ${{ vars.AWS_SECRETS_MANAGER }} --query SecretString --output text | jq -r 'to_entries|map("--env \(.key)=\(.value)")|join(" ")')
 
             echo "Stopping old container..."
             docker stop mi-backend-dev || true
