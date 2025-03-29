@@ -5,10 +5,6 @@ on:
     branches:
       - main
 
-env:
-  ECR_REPOSITORY: ecr-aws-backend-test
-  IMAGE_TAG: latest
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -50,6 +46,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+          
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -59,17 +65,3 @@ jobs:
           script: |
             echo "Logging into ECR..."
             aws ecr get-login-password --region ${{ vars.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com
-            
-            echo "Stopping old container..."
-            docker stop mi-backend-dev || true
-            docker rm mi-backend-dev || true
-            docker rmi 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }} || true
-
-            echo "Pulling new image..."
-            docker pull 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
-
-            # echo "Creating .env.production file..."
-            # echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
-
-            # echo "Running new container..."
-            # docker run -d -p 3001:3001 --name mi-backend --env-file .env.production 390844762416.dkr.ecr.us-east-2.amazonaws.com/ecr-aws-backend-test:latest
