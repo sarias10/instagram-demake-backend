@@ -1,3 +1,4 @@
+# No es necesario reiniciar NGINX
 name: Deploy Node Application
 
 on:
