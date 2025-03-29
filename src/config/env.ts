@@ -1,11 +1,16 @@
 import * as dotenv from 'dotenv';
 
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+const isProduction = process.env.NODE_ENV === 'production';
 
-dotenv.config({ path: envFile });
+// Sino es producción entonces es desarrollo
+if(!isProduction){
+    const envFile = '.env.development';
+    dotenv.config({ path: envFile });
+    console.log(`🛠️ Loaded environment variables from ${envFile}`);
+}
 
 export const config = {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT,
     secret: process.env.JWT_SECRET as string, // jwt.sign() espera que el segundo argumento sea una cadena (string) que representa la clave secreta o la clave privada
     db: {
         host: process.env.DB_HOST as string,
@@ -22,5 +27,3 @@ export const config = {
         awsCloudformationDomain: process.env.AWS_CLOUDFORMATION_DOMAIN as string
     }
 };
-
-console.log(`🛠️ Loaded environment variables from ${envFile}`);
