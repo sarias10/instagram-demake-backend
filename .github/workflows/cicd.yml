@@ -62,7 +62,7 @@ jobs:
         run: |
             echo ${{ steps.ip.outputs.ipv4 }}
 
-      - name: whitelist runner ip address
+      - name: Add runner IP address to security group whitelist
         run: |
           aws ec2 authorize-security-group-ingress \
             --group-id ${{ vars.AWS_SEG_ID_BACKEND_DEV }} \
@@ -97,4 +97,12 @@ jobs:
 
             echo "Running new container..."
             docker run -d -p 3001:3001 --name mi-backend-dev $SECRETS 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
+
+      - name: Remove runner IP address from security group whitelist
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ vars.AWS_SEG_ID_BACKEND_DEV }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
             
