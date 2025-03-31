@@ -14,12 +14,7 @@ app.use(express.json());
 app.use(requestLogger);
 
 // Este middleware por defecto permite solicitudes de todos los orígenes
-app.use(cors({
-    origin: 'https://instagram-demake.sarias.uk',  // Permitir solo este origen
-    methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
-    allowedHeaders: [ 'Content-Type', 'Authorization' ],
-    credentials: true,  // Asegúrate de que las credenciales se envíen correctamente
-}));
+app.options('*', cors());
 
 // Rutas
 app.use('/api', router);
