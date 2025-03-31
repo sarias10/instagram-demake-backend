@@ -43,7 +43,6 @@ export const createPost = async (req: CustomRequest<UploadToS3Attributes>, res: 
         // Traer el post con el username del autor
         const post = await queries.getPostById(id,newPost.id);
 
-        console.log(post);
         res.status(201).json(post);
     } catch (error) {
         next(error);
