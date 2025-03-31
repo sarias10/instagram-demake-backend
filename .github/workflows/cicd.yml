@@ -42,6 +42,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      # NOTA: si no te conectas al usuario de IAM no se van a poder obtener los secretos del secrets manager para 
+      # pasarselos al contenedor de docker para iniciar el backend
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:

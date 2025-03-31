@@ -1,4 +1,6 @@
 .env.*
 node_modules
 .github
+testTypes.ts
+testS3.ts
 build
