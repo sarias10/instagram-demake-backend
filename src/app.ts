@@ -14,7 +14,9 @@ app.use(express.json());
 app.use(requestLogger);
 
 // Este middleware por defecto permite solicitudes de todos los orígenes
-app.use(cors());
+app.use(cors({
+    credentials: true
+}));
 
 // Rutas
 app.use('/api', router);
