@@ -15,7 +15,18 @@ app.use(requestLogger);
 
 // Este middleware por defecto permite solicitudes de todos los orígenes
 app.use(cors({
-    origin: 'https://instagram-demake.sarias.uk',
+    origin: (origin, callback) => {
+        const allowedOrigins = [
+            'https://d17hmagp7xy3t6.cloudfront.net',
+            'https://instagram-demake.sarias.uk'
+        ];
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
     allowedHeaders: [ 'Content-Type', 'Authorization' ],
     credentials: true
