@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { createPost, deletePost, getAllPostsFromLoggedUser, getAllVisiblePosts, getAllVisiblePostsFromUser } from '../controllers/post.controller';
 import { uploadMiddleware, uploadToS3 } from '../middlewares/upload';
-import { createComment } from '../controllers/comment.controller';
+import { createComment, getComments } from '../controllers/comment.controller';
 import { createOrDeleteLike } from '../controllers/like.controller';
 import { getAllUsers, getUserByUsername } from '../controllers/user.controller';
 
@@ -21,6 +21,7 @@ router.get('/get-user/:username', getUserByUsername);
 router.post('/create-post', uploadMiddleware, uploadToS3, createPost);
 
 router.post('/create-comment', createComment);
+router.get('/get-comments-by-post-id/:postId', getComments);
 
 router.post('/create-like',createOrDeleteLike);
 export default router;
