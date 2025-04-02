@@ -71,7 +71,8 @@ export const getComments = async (req: CustomRequest<CommentCreationAttributes>,
                     attributes: [ 'id', 'username' ]
                 }
             ],
-            where: { postId: postId } // Buscamos el comentario del postId en el param
+            where: { postId: postId }, // Buscamos el comentario del postId en el param
+            order: [ [ 'id','DESC' ] ]
         });
 
         res.status(200).json(postComments);
