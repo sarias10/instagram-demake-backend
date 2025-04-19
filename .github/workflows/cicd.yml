@@ -101,9 +101,6 @@ jobs:
               --name mi-backend-dev \
               --env-file .env.production \
               390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
-            
-            echo "Cleaning up .env.production..."
-            rm .env.production
 
       - name: Remove runner IP address from security group whitelist
         run: |
