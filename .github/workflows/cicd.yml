@@ -79,7 +79,7 @@ jobs:
             
             echo "Fetching secrets from AWS Secrets Manager..."
             aws secretsmanager get-secret-value \
-              --secret-id ${{ vars.AWS_SECRETS_MANAGER }} \\
+              --secret-id ${{ vars.AWS_SECRETS_MANAGER }} \
               --query SecretString \
               --output text > .env.production
 
