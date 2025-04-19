@@ -7,10 +7,13 @@
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn src/index.ts",
     "start": "cross-env NODE_ENV=production node build/index.js",
     "lint": "eslint .",
-    "migrate": "npx sequelize-cli db:migrate",
-    "migrate:undo": "npx sequelize-cli db:migrate:undo",
-    "migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
-    "migration:create": "npx sequelize-cli migration:generate --name"
+    "migrate:dev": "cross-env NODE_ENV=development npx sequelize-cli db:migrate",
+    "migrate:dev:undo": "cross-env NODE_ENV=development npx sequelize-cli db:migrate:undo",
+    "migrate:dev:undo:all": "cross-env NODE_ENV=development npx sequelize-cli db:migrate:undo:all",
+    "migration:create": "npx sequelize-cli migration:generate --name",
+    "migrate:prod": "cross-env NODE_ENV=production npx sequelize-cli db:migrate",
+    "migrate:prod:undo": "cross-env NODE_ENV=production npx sequelize-cli db:migrate:undo",
+    "migrate:prod:undo:all": "cross-env NODE_ENV=production npx sequelize-cli db:migrate:undo:all"
   },
   "keywords": [],
   "author": "",

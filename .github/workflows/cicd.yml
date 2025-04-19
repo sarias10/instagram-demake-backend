@@ -78,7 +78,10 @@ jobs:
             aws ecr get-login-password --region ${{ vars.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com
             
             echo "Fetching secrets from AWS Secrets Manager..."
-            SECRETS=$(aws secretsmanager get-secret-value --secret-id ${{ vars.AWS_SECRETS_MANAGER }} --query SecretString --output text | jq -r 'to_entries|map("--env \(.key)=\(.value)")|join(" ")')
+            aws secretsmanager get-secret-value \
+              --secret-id ${{ vars.AWS_SECRETS_MANAGER }} \\
+              --query SecretString \
+              --output text > .env.production
 
             echo "Stopping old container..."
             docker stop mi-backend-dev || true
@@ -93,7 +96,14 @@ jobs:
             docker pull 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
 
             echo "Running new container..."
-            docker run -d -p 3001:3001 --name mi-backend-dev $SECRETS 390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
+            docker run -d -p \
+              3001:3001 \
+              --name mi-backend-dev \
+              --env-file .env.production \
+              390844762416.dkr.ecr.${{ vars.AWS_DEFAULT_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
+            
+            echo "Cleaning up .env.production..."
+            rm .env.production
 
       - name: Remove runner IP address from security group whitelist
         run: |
