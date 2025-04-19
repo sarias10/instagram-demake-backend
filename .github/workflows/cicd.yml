@@ -81,7 +81,7 @@ jobs:
             aws secretsmanager get-secret-value \
               --secret-id ${{ vars.AWS_SECRETS_MANAGER }} \
               --query SecretString \
-              --output text > .env.production
+              --output text | jq -r 'fromjson | to_entries | .[] | "\(.key)=\(.value)"' > .env.production
 
             echo "Stopping old container..."
             docker stop mi-backend-dev || true
