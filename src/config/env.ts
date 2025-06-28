@@ -3,15 +3,18 @@ import * as dotenv from 'dotenv';
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Sino es producción entonces es desarrollo
-if(!isProduction){
-    const envFile = '.env.development';
-    dotenv.config({ path: envFile });
-    console.log(`🛠️ Loaded environment variables from ${envFile}`);
+if (isProduction) {
+    dotenv.config({ path: '.env.production' }); // Carga .env.production si está en producción
+    console.log('🛠️ Loaded environment variables from .env.production');
+} else {
+    dotenv.config({ path: '.env.development' });
+    console.log('🛠️ Loaded environment variables from .env.development');
 }
 
 export const config = {
     port: process.env.PORT,
     secret: process.env.JWT_SECRET as string, // jwt.sign() espera que el segundo argumento sea una cadena (string) que representa la clave secreta o la clave privada
+    env: process.env.NODE_ENV,
     db: {
         host: process.env.DB_HOST as string,
         port: Number(process.env.DB_PORT),

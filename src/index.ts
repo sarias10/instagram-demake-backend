@@ -7,6 +7,7 @@ import { checkDatabaseConnection } from './config/database';
 const startServer = async (): Promise<void> => {
     try {
         await checkDatabaseConnection();
+        console.log(`Environment: ${config.env}`);
         app.listen(config.port, () => {
             console.log(`🚀 Server running on http://localhost:${config.port}`);
         });
