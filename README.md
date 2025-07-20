@@ -1,1 +1,1 @@
-![arquitectura aws de instagram demake](assets\instagram-demake.drawio.png)
+![arquitectura aws de instagram demake](assets\instagram-demake.png)
