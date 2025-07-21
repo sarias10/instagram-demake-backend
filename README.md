@@ -2,7 +2,7 @@
 
 Visita la app en vivo
 
-👉 <a href="https://instagram-demake.sarias.uk" target="_blank">https://instagram-demake.sarias.uk</a>
+👉 [https://instagram-demake.sarias.uk](https://instagram-demake.sarias.uk)
 
 
 ## 🗺️ Diagrama de arquitectura en AWS
@@ -16,9 +16,7 @@ Este es el diagrama de despliegue de la página web Instagram Demake en AWS:
 
 Mira cómo funciona la app en este video (click en la imagen):
 
-<a href="https://www.youtube.com/watch?v=Wojw2Cp-O8k" target="_blank">
-  <img src="https://img.youtube.com/vi/Wojw2Cp-O8k/hqdefault.jpg" alt="Demo en video">
-</a>
+[![Demo en video](https://img.youtube.com/vi/Wojw2Cp-O8k/hqdefault.jpg)](https://www.youtube.com/watch?v=Wojw2Cp-O8k)
 
 
 ### 🧩 Endpoints
