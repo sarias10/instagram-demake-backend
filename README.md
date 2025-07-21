@@ -1,3 +1,10 @@
+## 🚀 Demo en vivo
+
+Visita la app en vivo
+
+👉 [https://instagram-demake.sarias.uk](https://instagram-demake.sarias.uk)
+
+
 ## 🗺️ Diagrama de arquitectura en AWS
 Este es el diagrama de despliegue de la página web Instagram Demake en AWS:
 
@@ -5,18 +12,11 @@ Este es el diagrama de despliegue de la página web Instagram Demake en AWS:
 ![arquitectura aws de instagram demake](assets/instagram-demake.png)
 
 
-## 🚀 Demo en vivo
-
-Visita la app en vivo
-
-👉 [https://instagram-demake.sarias.uk](https://instagram-demake.sarias.uk)
-
 ## 🎬 Funcionamiento de la aplicación
 
 Mira cómo funciona la app en este video (click en la imagen):
 
 [![Demo en video](https://img.youtube.com/vi/Wojw2Cp-O8k/hqdefault.jpg)](https://www.youtube.com/watch?v=Wojw2Cp-O8k)
-
 
 
 ### 🧩 Endpoints
